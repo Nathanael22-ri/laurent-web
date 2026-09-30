@@ -266,7 +266,7 @@
 
                     <!-- Submit Button -->
                     <button @click="proceedToPayment()" 
-                            :disabled="!customerData.name || !customerData.phone || !customerData.address || !isNotRobot" 
+                            :disabled="!customerData.name.trim() || !customerData.phone.trim() || !customerData.address.trim() || !isNotRobot" 
                             class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
                         Lanjut ke Pembayaran
                     </button>
@@ -384,7 +384,7 @@
                 },
 
                 fetchProducts() {
-                    fetch('../api/get_catalogue.php')
+                    fetch('../api/get_products.php')
                         .then(res => res.json())
                         .then(res => {
                             if(res.status === 'success') {
@@ -459,6 +459,17 @@
 
                 // 2. Tombol di form memanggil ini untuk membuka Zendit
                 proceedToPayment() {
+                    // Bersihkan spasi kosong di awal/akhir input
+                    this.customerData.name = this.customerData.name.trim();
+                    this.customerData.phone = this.customerData.phone.trim();
+                    this.customerData.address = this.customerData.address.trim();
+
+                    // Validasi ganda untuk memastikan tidak ada yang lolos
+                    if (!this.customerData.name || !this.customerData.phone || !this.customerData.address) {
+                        alert('Mohon lengkapi semua data pengiriman dengan benar.');
+                        return; // Hentikan eksekusi jika masih kosong
+                    }
+
                     this.isCheckoutFormOpen = false;
                     this.paymentStep = 1; 
                     this.selectedPayment = null; 

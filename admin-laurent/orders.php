@@ -143,13 +143,13 @@
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-2">
                                             <!-- Tombol Terima -->
-                                            <button x-show="order.status === 'pending'" @click="updateStatus(order.id, 'paid')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-500 hover:text-white transition tooltip" title="Tandai Lunas">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                            </button>
+                                            <button x-show="order.status === 'pending'" @click="openConfirmModal(order, 'paid')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-500 hover:text-white transition tooltip" title="Tandai Lunas">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+</button>
                                             <!-- Tombol Tolak -->
-                                            <button x-show="order.status === 'pending'" @click="updateStatus(order.id, 'canceled')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition tooltip" title="Batalkan Pesanan">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                            </button>
+                                            <button x-show="order.status === 'pending'" @click="openConfirmModal(order, 'canceled')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition tooltip" title="Batalkan Pesanan">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+</button>
                                             
                                             <!-- Tombol Lihat Detail -->
                                             <button @click="viewDetails(order)" class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white transition font-semibold text-xs gap-1">
@@ -271,32 +271,42 @@
         </main>
     </div>
 
-    <!-- Modal Konfirmasi Keamanan -->
-    <div x-cloak x-show="confirmModal.open" class="fixed inset-0 z-[80] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
-            <div x-show="confirmModal.open" x-transition.opacity class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="confirmModal.open = false"></div>
-            <div x-show="confirmModal.open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95" class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-100">
-                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blue-50 sm:mx-0 sm:h-12 sm:w-12">
-                            <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </div>
-                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                            <h3 class="text-lg font-bold leading-6 text-slate-900" id="modal-title">Verifikasi Pembayaran Masuk</h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-slate-500 leading-relaxed">Anda akan memverifikasi pesanan <span class="font-bold text-slate-800" x-text="confirmModal.orderData?.poNumber"></span> atas nama <span class="font-bold text-slate-800" x-text="confirmModal.orderData?.customer"></span> senilai <span class="font-bold text-brand-600" x-text="formatRupiah(confirmModal.orderData?.total)"></span>.</p>
-                                <p class="text-sm text-red-500 mt-3 font-medium bg-red-50 p-2.5 rounded-lg border border-red-100">Pastikan Anda telah mengecek mutasi rekening/sistem QRIS sebelum mengonfirmasi tindakan ini.</p>
-                            </div>
+    <!-- MODAL KONFIRMASI STATUS DINAMIS -->
+<div x-cloak x-show="confirmAction.open" class="fixed inset-0 z-[80] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+        <div x-show="confirmAction.open" x-transition.opacity class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="confirmAction.open = false"></div>
+        
+        <div x-show="confirmAction.open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95" class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-slate-100">
+            
+            <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <!-- Ikon Berubah Warna Otomatis -->
+                    <div class="mx-auto flex h-14 w-14 shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-12 sm:w-12 transition-colors" :class="confirmAction.iconBg">
+                        <svg class="h-6 w-6" :class="confirmAction.iconColor" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" :d="confirmAction.iconPath" />
+                        </svg>
+                    </div>
+                    
+                    <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                        <h3 class="text-lg font-bold leading-6 text-slate-900" x-text="confirmAction.title"></h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-slate-500 leading-relaxed" x-html="confirmAction.message"></p>
                         </div>
                     </div>
                 </div>
-                <div class="bg-slate-50 px-4 py-4 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
-                    <button type="button" @click="executeVerification()" class="inline-flex w-full justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-brand-500 sm:ml-3 sm:w-auto transition-colors">Ya, Verifikasi Sekarang</button>
-                    <button type="button" @click="confirmModal.open = false" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto transition-colors">Batal</button>
-                </div>
+            </div>
+            
+            <div class="bg-slate-50 px-4 py-4 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
+                <!-- Tombol Eksekusi Berubah Warna Otomatis -->
+                <button type="button" @click="executeUpdateStatus()" class="inline-flex w-full justify-center rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-sm sm:ml-3 sm:w-auto transition-colors focus:outline-none" :class="confirmAction.btnColor" x-text="confirmAction.btnText">
+                </button>
+                <button type="button" @click="confirmAction.open = false" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto transition-colors focus:outline-none">
+                    Batal
+                </button>
             </div>
         </div>
     </div>
+</div>
 
     <script>
         document.addEventListener('alpine:init', () => {
@@ -315,13 +325,45 @@
                 selectedOrder: null,
                 orderItems: [],
                 isLoadingItems: false,
+                pendingOrdersCount: 0,
 
-                confirmModal: { open: false, orderData: null },
+                confirmAction: {
+                    open: false, orderId: null, newStatus: '',
+                    title: '', message: '', btnText: '', 
+                    btnColor: '', iconBg: '', iconColor: '', iconPath: ''
+                },
 
                 init() {
                     this.checkAuth();
+                    // 1. Panggil penghitung saat halaman pertama kali dimuat
+                    this.fetchPendingCount();
                     this.startClock();
                     this.fetchOrders();
+                    // 2. Cek database otomatis setiap 10 detik (10000 milidetik)
+                    setInterval(() => {
+                        this.fetchPendingCount();
+                    }, 10000);
+                },
+
+                fetchPendingCount() {
+                    fetch('api/get_pending_count.php')
+                        .then(res => res.json())
+                        .then(res => {
+                            if(res.status === 'success') {
+                                // DETEKSI PESANAN BARU MASUK
+                                // Jika angka baru lebih besar dari angka sebelumnya, berarti ada order baru
+                                if (res.count > this.pendingOrdersCount && this.pendingOrdersCount !== 0) {
+                                    // Panggil Toast Notification jika Anda sedang di halaman dashboard
+                                    if (typeof this.showToast === 'function') {
+                                        this.showToast('Pesanan Baru!', 'Ada pesanan baru yang menunggu verifikasi Anda.', 'success');
+                                    }
+                                }
+                                
+                                // Perbarui angka di badge merah sidebar
+                                this.pendingOrdersCount = res.count;
+                            }
+                        })
+                        .catch(err => console.error("Gagal mengecek notifikasi:", err));
                 },
 
                 fetchOrders() {
@@ -356,24 +398,7 @@
                         .finally(() => { this.isLoadingItems = false; });
                 },
 
-                updateStatus(orderId, newStatus) {
-                    if(!confirm('Apakah Anda yakin ingin mengubah status pesanan ini?')) return;
-
-                    fetch('api/get_orders.php', { // <--- Ubah di sini (menggunakan POST)
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: orderId, status: newStatus })
-                    })
-                    .then(res => res.json())
-                    .then(res => {
-                        if(res.status === 'success') {
-                            alert(res.message);
-                            this.fetchOrders();
-                        } else {
-                            alert('Gagal: ' + res.message);
-                        }
-                    });
-                },
+                
 
                 checkAuth() {
                     if (sessionStorage.getItem('admin_auth') !== 'true') {
@@ -433,35 +458,61 @@
                     }
                 },
 
-                verifyPayment(order) {
-                    this.confirmModal.orderData = order;
-                    this.confirmModal.open = true;
+                // Membuka Modal & Menyesuaikan Tampilan Berdasarkan Aksi
+                openConfirmModal(order, newStatus) {
+                    this.confirmAction.orderId = order.id;
+                    this.confirmAction.newStatus = newStatus;
+                    
+                    if (newStatus === 'paid') {
+                        this.confirmAction.title = 'Terima & Verifikasi';
+                        this.confirmAction.message = `Anda akan memverifikasi pesanan <b>${order.poNumber}</b> senilai <b>${this.formatRupiah(order.total)}</b>.<br><br><span class="text-[11px] text-red-500 font-bold">*Pastikan dana benar-benar sudah masuk/mutasi dicek.</span>`;
+                        this.confirmAction.btnText = 'Ya, Tandai Lunas';
+                        this.confirmAction.btnColor = 'bg-green-600 hover:bg-green-700';
+                        this.confirmAction.iconBg = 'bg-green-100';
+                        this.confirmAction.iconColor = 'text-green-600';
+                        this.confirmAction.iconPath = 'M5 13l4 4L19 7'; // Ikon Centang
+                    } else {
+                        this.confirmAction.title = 'Batalkan Pesanan';
+                        this.confirmAction.message = `Anda akan membatalkan pesanan <b>${order.poNumber}</b> atas nama <b>${order.customer}</b>. Tindakan ini tidak dapat dikembalikan.`;
+                        this.confirmAction.btnText = 'Ya, Batalkan';
+                        this.confirmAction.btnColor = 'bg-red-600 hover:bg-red-700';
+                        this.confirmAction.iconBg = 'bg-red-100';
+                        this.confirmAction.iconColor = 'text-red-600';
+                        this.confirmAction.iconPath = 'M6 18L18 6M6 6l12 12'; // Ikon Silang
+                    }
+                    
+                    this.confirmAction.open = true;
                 },
 
-                executeVerification() {
-                    const orderId = this.confirmModal.orderData.id;
-                    fetch('api/verify_payment.php', {
+                // Mengeksekusi API Setelah Tombol "Ya" Ditekan
+                executeUpdateStatus() {
+                    const orderId = this.confirmAction.orderId;
+                    const newStatus = this.confirmAction.newStatus;
+                    
+                    fetch('api/get_orders.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ order_id: orderId })
+                        body: JSON.stringify({ id: orderId, status: newStatus })
                     })
                     .then(res => res.json())
                     .then(res => {
                         if(res.status === 'success') {
-                            const orderIndex = this.orders.findIndex(o => o.id === orderId);
-                            if (orderIndex > -1) this.orders[orderIndex].status = 'paid';
-                            this.confirmModal.open = false;
-                            this.showToast('Verifikasi Berhasil!', 'Pembayaran pesanan telah dicatat.', 'success');
+                            this.showToast('Berhasil Diperbarui!', res.message, 'success');
+                            this.fetchOrders();
+                            this.fetchPendingCount(); // Segarkan badge sidebar otomatis
                         } else {
-                            this.confirmModal.open = false;
-                            this.showToast('Gagal', res.message, 'error');
+                            this.showToast('Gagal Memperbarui', res.message, 'error');
                         }
                     })
                     .catch(() => {
-                        this.confirmModal.open = false;
-                        this.showToast('Error', 'Terjadi kesalahan jaringan.', 'error');
+                        this.showToast('Kesalahan Jaringan', 'Gagal terhubung ke server.', 'error');
+                    })
+                    .finally(() => {
+                        this.confirmAction.open = false; // Otomatis tutup modal
                     });
-                }
+                },
+
+                
             }));
         });
     </script>

@@ -1,0 +1,22 @@
+# 1. File Konfigurasi & Keamanan (Sangat Penting)
+# Mencegah kredensial dan password database tersebar ke publik
+.env
+
+# 2. Folder Upload Gambar Dinamis
+# Mengabaikan foto produk yang diunggah agar repositori Git tidak bengkak
+laurent-hardware/images/products/*
+
+# Memaksa Git tetap membaca foldernya meskipun isinya diabaikan
+!laurent-hardware/images/products/.gitkeep
+
+# 3. File Sistem Operasi
+# File sampah (cache) yang otomatis dibuat oleh Windows atau Mac
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 4. File Editor & Log Umum (Opsional tapi disarankan)
+# Mengabaikan pengaturan lokal Visual Studio Code dan catatan eror server
+.vscode/
+*.log
+error_log
