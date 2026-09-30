@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi Admin | Laurent Hardware</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        // KODE WARNA UTAMA LAURENT HARDWARE
+                        brand: { 50: '#f3f6fc', 100: '#e6edf8', 400: '#6484c4', 500: '#4a6eb3', 600: '#344f96', 900: '#1c294d' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-left-color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* WARNA GRADASI PANEL KIRI */
+        .glass-header {
+            background: linear-gradient(135deg, #1c294d 0%, #344f96 100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden" x-data="adminRegister()">
+
+    <!-- Ornamen Latar Belakang -->
+    <div class="absolute top-[-10%] right-[-5%] w-72 h-72 md:w-96 md:h-96 bg-brand-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-pulse"></div>
+    <div class="absolute bottom-[-10%] left-[-5%] w-72 h-72 md:w-96 md:h-96 bg-brand-600 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse" style="animation-delay: 2s;"></div>
+
+    <!-- Kotak Registrasi -->
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative z-10 my-4 sm:my-8 flex flex-col md:flex-row">
+        
+        <!-- Sisi Kiri / Header (Desktop) -->
+        <div class="glass-header px-8 py-10 md:w-2/5 flex flex-col justify-center text-white relative overflow-hidden">
+            <!-- Aksen Garis -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl transform -translate-x-10 translate-y-10"></div>
+            
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 mb-6 shadow-lg">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">Pendaftaran Admin</h2>
+            <p class="text-brand-100 text-sm leading-relaxed opacity-90">Bergabunglah ke dalam sistem manajemen internal Laurent Hardware. Pastikan Anda memiliki kode otoritas.</p>
+        </div>
+
+        <!-- Form Registrasi -->
+        <div class="px-6 py-8 sm:px-10 sm:py-10 md:w-3/5 bg-white">
+            
+            <!-- Alert Error -->
+            <div x-show="errorMsg" x-cloak x-transition class="mb-6 p-4 rounded-2xl bg-red-50 border border-red-100 flex items-start gap-3">
+                <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p class="text-sm font-semibold text-red-700 leading-snug" x-text="errorMsg"></p>
+            </div>
+
+            <!-- Alert Success -->
+            <div x-show="successMsg" x-cloak x-transition class="mb-6 p-4 rounded-2xl bg-green-50 border border-green-100 flex items-start gap-3">
+                <svg class="w-5 h-5 text-green-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p class="text-sm font-semibold text-green-700 leading-snug" x-text="successMsg"></p>
+            </div>
+
+            <form @submit.prevent="doRegister" class="space-y-5">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <!-- Input Nama Lengkap -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            </div>
+                            <input type="text" x-model="fullname" required placeholder="Budi Santoso" class="block w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white focus:border-brand-500 transition-colors font-medium">
+                        </div>
+                    </div>
+
+                    <!-- Input Username -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Username Baru</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <input type="text" x-model="username" required placeholder="Ketik username..." class="block w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white focus:border-brand-500 transition-colors font-medium">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <!-- Input Password -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kata Sandi</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            </div>
+                            <input :type="showPassword ? 'text' : 'password'" x-model="password" required placeholder="••••••••" class="block w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white focus:border-brand-500 transition-colors font-medium">
+                            <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-600 focus:outline-none">
+                                <svg x-show="!showPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                <svg x-show="showPassword" x-cloak class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Konfirmasi Password -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ulangi Sandi</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            </div>
+                            <input :type="showConfirmPassword ? 'text' : 'password'" x-model="confirmPassword" required placeholder="••••••••" class="block w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white focus:border-brand-500 transition-colors font-medium">
+                            <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-600 focus:outline-none">
+                                <svg x-show="!showConfirmPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                <svg x-show="showConfirmPassword" x-cloak class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <!-- Dropdown Role (Sesuai Tabel Users) -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hak Akses</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <select x-model="role" class="block w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white focus:border-brand-500 transition-colors font-medium appearance-none cursor-pointer text-slate-700">
+                                <option value="admin">Admin Standar</option>
+                                <option value="super_admin">Super Admin</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Kode Otoritas -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kode Otoritas</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                            </div>
+                            <input type="text" x-model="accessCode" required placeholder="LAURENT2026" class="block w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white focus:border-brand-500 transition-colors uppercase font-bold tracking-widest">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tombol Submit -->
+                <button type="submit" :disabled="isLoading" class="w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/30 text-sm font-bold text-white bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed mt-4">
+                    <span x-show="!isLoading">Daftar Akun Baru</span>
+                    <div x-show="isLoading" x-cloak class="loader"></div>
+                </button>
+            </form>
+            
+            <!-- Link ke Login -->
+            <div class="mt-8 pt-6 border-t border-slate-100 text-center flex flex-col items-center justify-center gap-3">
+                <p class="text-sm font-medium text-slate-600">
+                    Sudah memiliki akun? 
+                    <a href="login.html" class="font-bold text-brand-600 hover:text-brand-700 transition-colors">Masuk di sini</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminRegister', () => ({
+                fullname: '',
+                username: '',
+                password: '',
+                confirmPassword: '',
+                role: 'admin', 
+                accessCode: '',
+                
+                errorMsg: '',
+                successMsg: '',
+                isLoading: false,
+                showPassword: false,
+                showConfirmPassword: false,
+
+                doRegister() {
+                    this.errorMsg = '';
+                    this.successMsg = '';
+                    this.isLoading = true;
+
+                    if (this.password !== this.confirmPassword) {
+                        this.errorMsg = 'Kata sandi dan konfirmasi kata sandi tidak cocok!';
+                        this.isLoading = false;
+                        return;
+                    }
+
+                    if (this.password.length < 6) {
+                        this.errorMsg = 'Kata sandi minimal harus 6 karakter!';
+                        this.isLoading = false;
+                        return;
+                    }
+
+                    if (this.accessCode.toUpperCase() !== 'LAURENT2026') {
+                        this.errorMsg = 'Kode Otoritas Pendaftaran salah!';
+                        this.isLoading = false;
+                        return;
+                    }
+
+                    // Request ke PHP Backend
+                    fetch('api/register.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fullname: this.fullname,
+                            username: this.username,
+                            password: this.password,
+                            role: this.role, 
+                            accessCode: this.accessCode
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            this.successMsg = 'Pendaftaran berhasil! Mengalihkan ke halaman Login...';
+                            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                        } else {
+                            this.errorMsg = res.message;
+                            this.isLoading = false;
+                        }
+                    })
+                    .catch(err => {
+                        this.errorMsg = 'Gagal menghubungi server.';
+                        this.isLoading = false;
+                    });
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

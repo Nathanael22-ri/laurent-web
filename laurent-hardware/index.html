@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth" x-data="hardwareStore()" :class="{ 'dark': isDark }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laurent Hardware | Smart Door & Building Solutions</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Script Tema (Dark Mode Anti-FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f3f6fc',
+                            100: '#e6edf8',
+                            400: '#6484c4',
+                            500: '#4a6eb3',
+                            600: '#344f96',
+                            700: '#2a407a',
+                            900: '#1c294d',
+                        },
+                        zendit: {
+                            500: '#002060',
+                            600: '#001a4d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #344f96, #6484c4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .dark .gradient-text {
+            background: linear-gradient(to right, #6484c4, #a0b8e6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        [x-cloak] { display: none !important; }
+
+        /* Loader Zendit */
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: #344f96;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Custom Pulse Floating WA */
+        .animate-pulse-fast {
+            animation: pulse-fast 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-fast {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-slate-900 overflow-x-hidden transition-colors duration-300" :class="{ 'overflow-hidden': isCartOpen || isPaymentModalOpen || isCheckoutFormOpen }">
+    <!-- Floating WhatsApp Button (Responsive Positioning) -->
+    <a href="https://wa.me/6281212382003" target="_blank" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 bg-green-500 text-white p-3 md:p-4 rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 animate-pulse-fast hover:scale-110 flex items-center justify-center group" aria-label="Contact WhatsApp">
+        <svg class="w-7 h-7 md:w-8 md:h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.161.453-.892.853-1.288.932-.303.06-.723.137-2.228-.485-1.802-.74-2.947-2.58-3.037-2.703-.09-.124-.725-.966-.725-1.843s.457-1.31.621-1.484c.135-.143.344-.194.524-.194.062 0 .118-.005.168-.005.158 0 .324-.015.485.378.165.405.539 1.32.586 1.415.048.095.079.206.015.334-.061.127-.095.206-.188.312-.093.107-.197.234-.278.326-.089.102-.184.214-.078.397.105.182.473.782 1.019 1.268.703.626 1.293.82 1.479.914.184.095.293.079.403-.047.112-.127.481-.559.613-.751.13-.191.261-.161.428-.1.168.06 1.059.5 1.242.592.184.094.306.142.352.223.045.08.045.467-.116.92zM12.015 2c5.514 0 10 4.486 10 10s-4.486 10-10 10c-1.856 0-3.593-.509-5.068-1.385l-4.947 1.303 1.325-4.819c-.96-1.503-1.51-3.296-1.51-5.204 0-5.514 4.486-10 10-10z"/></svg>
+        <span class="absolute -top-10 right-0 bg-gray-900 text-white text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1 md:py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap shadow-md">
+            Hubungi Kami
+        </span>
+    </a>
+
+    <!-- Navbar Responsif Dinamis -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- 1. HERO SECTION -->
+    <section id="home" class="relative pt-28 pb-12 md:pt-40 md:pb-20 lg:pt-48 lg:pb-24 overflow-hidden px-4 sm:px-6 lg:px-8">
+        <!-- Glow Orbs -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 md:w-96 md:h-96 rounded-full bg-brand-100 dark:bg-brand-900/40 opacity-60 blur-3xl z-0 animate-pulse"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-60 h-60 md:w-80 md:h-80 rounded-full bg-blue-100 dark:bg-blue-900/30 opacity-60 blur-3xl z-0"></div>
+        
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
+                <div data-aos="fade-right" data-aos-duration="1000" class="text-center lg:text-left mt-8 md:mt-0">
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-800 text-brand-600 dark:text-brand-400 font-semibold text-xs md:text-sm mb-4 md:mb-6">
+                        Solusi Keamanan Bangunan Modern
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4 md:mb-6 text-gray-900 dark:text-white">
+                        Inovasi Bangunan & Keamanan <br class="hidden lg:block"> <span class="gradient-text">Pintu Anda</span>
+                    </h1>
+                    <p class="text-base md:text-lg text-gray-600 dark:text-gray-300 mb-6 md:mb-8 leading-relaxed px-2 sm:px-0">
+                        Tingkatkan estetika dan keamanan bangunan Anda dengan koleksi <span class="font-bold">Hardware</span> dan <span class="font-bold">Smart Door</span> premium dari Laurent Hardware. Desain futuristik dibalut keamanan tingkat tinggi.
+                    </p>
+                    <!-- Buttons Full Width on Mobile -->
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 px-2 sm:px-0">
+                        <a href="#shop" class="w-full sm:w-auto px-8 py-3.5 md:py-4 bg-brand-600 text-white rounded-full font-bold text-center hover:bg-brand-700 transition shadow-lg hover:shadow-brand-500/50 transform hover:-translate-y-1">
+                            Mulai Belanja
+                        </a>
+                        <a href="#features" class="w-full sm:w-auto px-8 py-3.5 md:py-4 bg-transparent border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-full font-bold text-center hover:border-brand-600 hover:text-brand-600 dark:hover:border-brand-400 dark:hover:text-brand-400 transition transform hover:-translate-y-1">
+                            Pelajari Lebih Lanjut
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="relative mt-8 lg:mt-0" data-aos="fade-left" data-aos-duration="1200">
+                    <div class="relative rounded-3xl overflow-hidden shadow-2xl transform lg:rotate-2 hover:rotate-0 transition duration-700 cursor-pointer group border-4 border-white dark:border-slate-800">
+                        <img src="https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Modern Smart Door" class="w-full h-64 md:h-auto object-cover group-hover:scale-105 transition duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6 transform group-hover:-translate-y-2 transition duration-500">
+                            <div class="bg-white/10 backdrop-blur-md border border-white/20 p-4 md:p-5 rounded-2xl flex items-center gap-3 md:gap-4 shadow-xl">
+                                <div class="bg-brand-600 p-2.5 md:p-3 rounded-full text-white shadow-lg">
+                                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold text-base md:text-lg">Smart Lock V2.0</h4>
+                                    <p class="text-brand-200 text-xs md:text-sm font-medium">Akses Cepat. Keamanan Tinggi.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. TRUST SIGNALS -->
+    <section class="py-6 md:py-8 bg-white dark:bg-slate-800 border-y border-gray-100 dark:border-slate-700 relative z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-y-6 md:gap-y-0 gap-x-4 text-center divide-x divide-gray-100 dark:divide-slate-700">
+                <div data-aos="fade-up" data-aos-delay="100">
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">500+</h3>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Proyek Selesai</p>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">100%</h3>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Garansi Kualitas</p>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="300">
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">24/7</h3>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Customer Support</p>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="400">
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">#1</h3>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Pilihan Kontraktor</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. VALUE PROPOSITION (MENGAPA KAMI) -->
+    <section id="features" class="py-16 md:py-24 bg-gray-50 dark:bg-slate-900 transition-colors duration-300 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16" data-aos="fade-up">
+                <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Mengapa <span class="text-brand-600 dark:text-brand-400">Laurent Hardware?</span></h2>
+                <p class="text-base md:text-lg text-gray-600 dark:text-gray-400">Integritas dalam kualitas material yang dipadukan dengan kemajuan teknologi cerdas.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6 md:gap-8">
+                <!-- Feature 1 -->
+                <div class="p-6 md:p-8 rounded-3xl bg-white dark:bg-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-slate-700 transform hover:-translate-y-2 group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-14 h-14 md:w-16 md:h-16 bg-brand-50 dark:bg-brand-900/50 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-5 md:mb-6 group-hover:scale-110 transition duration-300">
+                        <svg class="w-7 h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-bold mb-2 md:mb-3 text-gray-900 dark:text-white">Keamanan Terenkripsi</h3>
+                    <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">Sistem Smart Lock kami menggunakan enkripsi tingkat perbankan untuk memastikan tidak ada akses yang tidak sah.</p>
+                </div>
+                <!-- Feature 2 -->
+                <div class="p-6 md:p-8 rounded-3xl bg-white dark:bg-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-slate-700 transform hover:-translate-y-2 group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-14 h-14 md:w-16 md:h-16 bg-brand-50 dark:bg-brand-900/50 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-5 md:mb-6 group-hover:scale-110 transition duration-300">
+                        <svg class="w-7 h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-bold mb-2 md:mb-3 text-gray-900 dark:text-white">Material Premium</h3>
+                    <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">Dari baja anti karat hingga kayu solid pilihan, setiap hardware dirancang untuk ketahanan seumur hidup.</p>
+                </div>
+                <!-- Feature 3 -->
+                <div class="p-6 md:p-8 rounded-3xl bg-white dark:bg-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-slate-700 transform hover:-translate-y-2 group" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-14 h-14 md:w-16 md:h-16 bg-brand-50 dark:bg-brand-900/50 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-5 md:mb-6 group-hover:scale-110 transition duration-300">
+                        <svg class="w-7 h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-bold mb-2 md:mb-3 text-gray-900 dark:text-white">Desain Estetik</h3>
+                    <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">Kami percaya keamanan tidak harus mengorbankan keindahan. Desain kami menyatu sempurna dengan arsitektur modern.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. HIGHLIGHTED PRODUCTS -->
+    <section id="shop" class="py-16 md:py-24 bg-white dark:bg-slate-800 transition-colors duration-300 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center text-center md:text-left mb-10 md:mb-12" data-aos="fade-up">
+                <div class="max-w-2xl mb-4 md:mb-0">
+                    <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 md:mb-4">Katalog Pilihan</h2>
+                    <p class="text-sm md:text-base text-gray-600 dark:text-gray-400">Produk terlaris kami bulan ini. Siap dipasang di hunian Anda.</p>
+                </div>
+                <a href="products/products.html" class="text-brand-600 dark:text-brand-400 font-bold hover:text-brand-800 dark:hover:text-brand-300 flex items-center gap-2 transition group text-sm md:text-base">
+                    Lihat Semua Produk 
+                    <svg class="w-4 h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
+            </div>
+
+            <!-- Menampilkan hanya 3 produk pertama di Landing Page -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <template x-for="product in products.slice(0,3)" :key="product.id">
+                    <div class="bg-gray-50 dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-gray-100 dark:border-slate-700 transform hover:-translate-y-1" data-aos="zoom-in">
+                        <!-- Image Container Height Adjusted for Mobile -->
+                        <div class="relative overflow-hidden h-48 sm:h-56 md:h-64 bg-gray-200 dark:bg-gray-800">
+                            <img :src="product.image" :alt="product.name" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
+                            <div class="absolute inset-0 bg-brand-900 bg-opacity-0 group-hover:bg-opacity-10 transition duration-300"></div>
+                            <div x-show="product.badge" class="absolute top-3 right-3 md:top-4 md:right-4 bg-brand-600 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold shadow-md tracking-wide" x-text="product.badge"></div>
+                        </div>
+                        <div class="p-5 md:p-6 flex flex-col flex-grow">
+                            <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition line-clamp-1" x-text="product.name"></h3>
+                            <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-5 md:mb-6 flex-grow line-clamp-2" x-text="product.desc"></p>
+                            <div class="flex flex-col gap-3 md:gap-4 mt-auto">
+                                <span class="text-xl md:text-2xl font-extrabold text-gray-900 dark:text-white" x-text="formatRupiah(product.price)"></span>
+                                <button @click="addToCart(product)" class="w-full py-3 md:py-3.5 rounded-xl bg-gray-900 dark:bg-brand-600 text-white font-bold hover:bg-brand-600 dark:hover:bg-brand-500 transition shadow-lg transform active:scale-95 flex justify-center items-center gap-2 text-sm md:text-base">
+                                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                    Tambah ke Keranjang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. SECONDARY CTA BANNER -->
+    <section class="py-16 md:py-24 bg-brand-900 relative overflow-hidden px-4">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1534398079543-7ae6d016b8b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center mix-blend-overlay"></div>
+        <div class="max-w-4xl mx-auto relative z-10 text-center" data-aos="zoom-in">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 md:mb-6 leading-tight">Amankan Hunian Anda Hari Ini</h2>
+            <p class="text-brand-100 mb-8 md:mb-10 text-base md:text-xl px-2">Dapatkan potongan khusus 15% untuk instalasi sistem Smart Lock biometrik bulan ini.</p>
+            <div class="flex justify-center">
+                <a href="https://wa.me/6281212382003" target="_blank" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 md:px-10 md:py-4 bg-white text-brand-900 rounded-full font-bold text-sm md:text-lg hover:bg-brand-50 transition shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transform hover:-translate-y-1">
+                    Hubungi Spesialis Kami
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. FOOTER -->
+    <!-- Footer Dinamis -->
+    <div id="footer-placeholder"></div>
+
+
+    <!-- cart drawer & dummy zendit -->
+     <div id="cart-placeholder"></div>
+
+     <!-- MODAL FORM DATA PELANGGAN -->
+    <div x-cloak x-show="isCheckoutFormOpen" class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <!-- Backdrop -->
+            <div x-show="isCheckoutFormOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-md transition-opacity" @click="isCheckoutFormOpen = false"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <!-- Modal Box -->
+            <div x-show="isCheckoutFormOpen" 
+                 x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                 class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full border border-gray-100 dark:border-slate-700">
+                
+                <!-- Header -->
+                <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Detail Pengiriman</h3>
+                    <button @click="isCheckoutFormOpen = false" class="text-gray-400 hover:text-red-500 transition focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                <!-- Form Body -->
+                <div class="px-6 py-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Lengkap</label>
+                        <input type="text" x-model="customerData.name" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Masukkan nama penerima">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nomor Telepon / WA</label>
+                        <input type="tel" x-model="customerData.phone" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Contoh: 08123456789">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat Lengkap</label>
+                        <textarea x-model="customerData.address" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition resize-none" placeholder="Nama Jalan, RT/RW, Kelurahan, Kecamatan, Kota"></textarea>
+                    </div>
+
+                    <!-- Custom reCAPTCHA Simulation -->
+                    <div class="mt-4 p-3 md:p-4 border border-gray-200 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-900/50 flex items-center justify-between">
+                        <label class="flex items-center cursor-pointer group">
+                            <div class="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 mr-3 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded group-hover:border-brand-500 transition-colors shadow-sm">
+                                <input type="checkbox" x-model="isNotRobot" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
+                                <svg x-show="isNotRobot" x-transition.scale class="w-5 h-5 text-green-500 absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300 select-none">Saya bukan robot</span>
+                        </label>
+                        <div class="flex flex-col items-center opacity-80">
+                            <!-- Recaptcha Icon -->
+                            <svg class="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            <span class="text-[8px] text-gray-500 mt-0.5 tracking-wider">reCAPTCHA</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button @click="proceedToPayment()" 
+                            :disabled="!customerData.name || !customerData.phone || !customerData.address || !isNotRobot" 
+                            class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
+                        Lanjut ke Pembayaran
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Script Init -->
+    <!-- Script Init -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true, offset: 50, duration: 800, easing: 'ease-out-cubic' });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('hardwareStore', () => ({
+                isDark: document.documentElement.classList.contains('dark'),
+                isCartOpen: false,
+                isMobileMenuOpen: false,
+                
+                // --- DATA FORM PELANGGAN ---
+                isCheckoutFormOpen: false,
+                customerData: { name: '', phone: '', address: '' },
+                isNotRobot: false,
+                invoiceNumber: '',
+
+                // --- STATE KERANJANG & PEMBAYARAN ---
+                cart: [],
+                includePPN: false,
+                isDelivery: false,
+                appFee: 2500,
+                deliveryFee: 50000,
+                isPaymentModalOpen: false,
+                paymentStep: 1, 
+                selectedPayment: null,
+                
+                products: [],
+
+                init() {
+                    this.fetchProducts();
+                },
+
+                // Fetch data menggunakan path sejajar (karena index.html ada di luar)
+                fetchProducts() {
+                    fetch('api/get_public_products.php')
+                        .then(res => res.json())
+                        .then(res => {
+                            if(res.status === 'success') {
+                                this.products = res.data;
+                            } else {
+                                console.error("Error Database:", res.message);
+                            }
+                        })
+                        .catch(err => console.error("Gagal load produk:", err));
+                },
+
+                toggleTheme() {
+                    this.isDark = !this.isDark;
+                    if (this.isDark) {
+                        localStorage.setItem('theme', 'dark');
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        localStorage.setItem('theme', 'light');
+                        document.documentElement.classList.remove('dark');  
+                    }
+                },
+                
+                addToCart(product) {
+                    const itemIndex = this.cart.findIndex(item => item.id === product.id);
+                    if (itemIndex > -1) this.cart[itemIndex].qty += 1;
+                    else this.cart.push({ ...product, qty: 1 });
+                    this.isCartOpen = true; 
+                },
+                updateQty(id, change) {
+                    const item = this.cart.find(i => i.id === id);
+                    if (item) {
+                        item.qty += change;
+                        if (item.qty <= 0) this.removeFromCart(id);
+                    }
+                },
+                removeFromCart(id) { this.cart = this.cart.filter(item => item.id !== id); },
+                get totalItems() { return this.cart.reduce((total, item) => total + item.qty, 0); },
+                
+                get cartTotal() { return this.cart.reduce((total, item) => total + (item.price * item.qty), 0); },
+                get ppnAmount() { return this.includePPN ? (this.cartTotal * 0.11) : 0; },
+                get activeDeliveryFee() { return this.isDelivery ? this.deliveryFee : 0; },
+                get grandTotal() { 
+                    if(this.cart.length === 0) return 0;
+                    return this.cartTotal + this.ppnAmount + this.appFee + this.activeDeliveryFee; 
+                },
+                formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); },
+                
+                // --- ALUR CHECKOUT BARU ---
+                openCheckoutForm() { 
+                    this.isCartOpen = false; 
+                    setTimeout(() => { this.isCheckoutFormOpen = true; }, 300); 
+                },
+
+                proceedToPayment() {
+                    this.isCheckoutFormOpen = false;
+                    this.paymentStep = 1; 
+                    this.selectedPayment = null; 
+                    setTimeout(() => { this.isPaymentModalOpen = true; }, 300); 
+                },
+
+                processPayment() { 
+                    this.paymentStep = 2; 
+                    
+                    const payload = {
+                        customer: this.customerData,
+                        cart: this.cart,
+                        paymentMethod: this.selectedPayment,
+                        grandTotal: this.grandTotal
+                    };
+
+                    // Path sejajar langsung ke api/checkout.php
+                    fetch('api/checkout.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            this.invoiceNumber = data.invoice_number;
+                            this.paymentStep = 3; 
+                        } else {
+                            alert('Gagal memproses pesanan: ' + data.message);
+                            this.isPaymentModalOpen = false;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error Checkout:', err);
+                        alert('Terjadi kesalahan jaringan.');
+                        this.isPaymentModalOpen = false;
+                    });
+                },
+
+                checkoutWA() {
+                    let textMsg = `*Halo Laurent Hardware*\nSaya ingin memproses pesanan:\n\n`;
+                    textMsg += `*Data Pengiriman:*\nNama: ${this.customerData.name}\nNo. WA: ${this.customerData.phone}\nAlamat: ${this.customerData.address}\n\n`;
+                    textMsg += `*Rincian Barang:*\n`;
+                    this.cart.forEach((item, index) => { textMsg += `${index + 1}. ${item.name}\n   Qty: ${item.qty} x ${this.formatRupiah(item.price)}\n`; });
+                    textMsg += `\n*Subtotal: ${this.formatRupiah(this.cartTotal)}*`;
+                    textMsg += `\n*Biaya Aplikasi: ${this.formatRupiah(this.appFee)}*`;
+                    if (this.includePPN) textMsg += `\n*PPN (11%): ${this.formatRupiah(this.ppnAmount)}*`;
+                    if (this.isDelivery) textMsg += `\n*Estimasi Ongkir: ${this.formatRupiah(this.deliveryFee)}*`;
+                    textMsg += `\n\n*Total Tagihan: ${this.formatRupiah(this.grandTotal)}*`;
+                    
+                    window.open(`https://wa.me/6281212382003?text=${encodeURIComponent(textMsg)}`, '_blank');
+                    this.finishPayment();
+                },
+
+                finishPayment() { 
+                    this.isPaymentModalOpen = false; 
+                    this.cart = []; 
+                    this.includePPN = false; 
+                    this.isDelivery = false; 
+                    this.customerData = { name: '', phone: '', address: '' };
+                    this.isNotRobot = false;
+                }
+            }));
+        });
+    </script>
+
+    <script>
+        // Cache Buster agar HTML selalu yang terbaru
+        const noCache = '?v=' + new Date().getTime();
+
+        fetch('navbar/navbar.html' + noCache)
+            .then(response => {
+                if (!response.ok) throw new Error('Navbar gagal dimuat');
+                return response.text();
+            })
+            .then(data => { document.getElementById('navbar-placeholder').innerHTML = data; })
+            .catch(error => console.error('Gagal memuat navbar:', error));
+
+        fetch('footer/footer.html' + noCache)
+            .then(response => {
+                if (!response.ok) throw new Error('Footer gagal dimuat');
+                return response.text();
+            })
+            .then(data => { document.getElementById('footer-placeholder').innerHTML = data; })
+            .catch(error => console.error('Gagal memuat footer:', error));
+
+        fetch('cart/cart.html' + noCache)
+            .then(response => {
+                if (!response.ok) throw new Error('Cart gagal dimuat');
+                return response.text();
+            })
+            .then(data => { 
+                const placeholder = document.getElementById('cart-placeholder');
+                placeholder.innerHTML = data;
+            })
+            .catch(error => console.error('Gagal memuat cart:', error));
+    </script>
+</body>
+</html>

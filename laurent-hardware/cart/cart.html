@@ -1,0 +1,281 @@
+<!-- BUNGKUSAN UTAMA MODUL CART & CHECKOUT -->
+<div id="cart-module-wrapper">
+
+    <!-- ========================================== -->
+    <!-- 1. CART DRAWER (KERANJANG BELANJA KANAN)   -->
+    <!-- ========================================== -->
+    <div class="relative" style="z-index: 50;" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+        <!-- Backdrop Latar Gelap -->
+        <div x-cloak x-show="isCartOpen" 
+             x-transition.opacity 
+             class="fixed inset-0 bg-gray-900 bg-opacity-70 backdrop-blur-sm transition-opacity" 
+             @click="isCartOpen = false"></div>
+        
+        <!-- Wadah Panel -->
+        <div x-cloak x-show="isCartOpen" class="fixed inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full">
+                    <!-- Panel Drawer -->
+                    <div x-show="isCartOpen" 
+                         x-transition:enter="transform transition ease-in-out duration-300" 
+                         x-transition:enter-start="translate-x-full" 
+                         x-transition:enter-end="translate-x-0" 
+                         x-transition:leave="transform transition ease-in-out duration-300" 
+                         x-transition:leave-start="translate-x-0" 
+                         x-transition:leave-end="translate-x-full" 
+                         class="pointer-events-auto w-screen max-w-md">
+                         
+                        <div class="h-full flex flex-col bg-white dark:bg-slate-800 shadow-2xl">
+                            <!-- Header Drawer -->
+                            <div class="px-4 py-4 md:py-6 bg-gray-50 dark:bg-slate-900 border-b dark:border-slate-700 flex justify-between items-center">
+                                <h2 class="text-base md:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <svg class="w-5 h-5 md:w-6 md:h-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                                    Keranjang Belanja
+                                </h2>
+                                <button type="button" @click="isCartOpen = false" class="text-gray-400 hover:text-gray-700 dark:hover:text-white transition p-2 focus:outline-none">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+
+                            <!-- Cart Items -->
+                            <div class="flex-1 py-4 md:py-6 overflow-y-auto px-4 md:px-6">
+                                <template x-if="cart.length === 0">
+                                    <div class="text-center py-12 flex flex-col items-center">
+                                        <div class="w-16 h-16 bg-brand-50 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4">
+                                            <svg class="h-8 w-8 text-brand-400 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                                        </div>
+                                        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm">Keranjang Anda masih kosong.</p>
+                                    </div>
+                                </template>
+                                
+                                <ul class="space-y-4 md:space-y-6">
+                                    <template x-for="(item, index) in cart" :key="index">
+                                        <li class="flex py-2">
+                                            <div class="h-16 w-16 md:h-20 md:w-20 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                                                <img :src="item.image" class="h-full w-full object-cover object-center">
+                                            </div>
+                                            <div class="ml-3 md:ml-4 flex flex-1 flex-col justify-center">
+                                                <div class="flex justify-between text-xs md:text-sm font-bold text-gray-900 dark:text-white">
+                                                    <h3 x-text="item.name" class="line-clamp-1"></h3>
+                                                </div>
+                                                <p class="text-brand-600 dark:text-brand-400 font-bold mb-2 text-xs md:text-sm" x-text="formatRupiah(item.price * item.qty)"></p>
+                                                <div class="flex items-end justify-between text-xs md:text-sm">
+                                                    <div class="flex items-center border border-gray-300 dark:border-slate-600 rounded-md bg-gray-50 dark:bg-slate-900 overflow-hidden">
+                                                        <button type="button" @click="updateQty(item.id, -1)" class="px-2 md:px-2.5 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition">-</button>
+                                                        <span class="px-2 md:px-3 font-bold text-gray-900 dark:text-white" x-text="item.qty"></span>
+                                                        <button type="button" @click="updateQty(item.id, 1)" class="px-2 md:px-2.5 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition">+</button>
+                                                    </div>
+                                                    <button type="button" @click="removeFromCart(item.id)" class="font-medium text-red-500 hover:text-red-600 transition">Hapus</button>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            <!-- Checkout Summary -->
+                            <div class="border-t border-gray-200 dark:border-slate-700 px-4 py-4 md:py-6 bg-gray-50 dark:bg-slate-900">
+                                <div class="space-y-2 md:space-y-3 border-b border-gray-200 dark:border-slate-700 pb-3 md:pb-4 mb-3 md:mb-4">
+                                    <div class="flex justify-between text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                        <p>Subtotal</p>
+                                        <p x-text="formatRupiah(cartTotal)"></p>
+                                    </div>
+                                    
+                                    <label class="relative inline-flex items-center cursor-pointer justify-between w-full">
+                                        <span class="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Gunakan PPN (11%)</span>
+                                        <input type="checkbox" x-model="includePPN" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[22px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-600 transform scale-90 md:scale-100 origin-right"></div>
+                                    </label>
+                                    
+                                    <label class="relative inline-flex items-center cursor-pointer justify-between w-full">
+                                        <span class="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Butuh Pengiriman?</span>
+                                        <input type="checkbox" x-model="isDelivery" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[22px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-600 transform scale-90 md:scale-100 origin-right"></div>
+                                    </label>
+
+                                    <div class="space-y-1 mt-2 pt-2 border-t border-gray-200/50 dark:border-slate-700/50">
+                                        <div class="flex justify-between text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                                            <p>Biaya Layanan</p>
+                                            <p x-text="formatRupiah(appFee)"></p>
+                                        </div>
+                                        <div x-show="includePPN" x-transition class="flex justify-between text-xs md:text-sm text-red-500 dark:text-red-400 font-medium">
+                                            <p>Pajak (PPN 11%)</p>
+                                            <p x-text="formatRupiah(ppnAmount)"></p>
+                                        </div>
+                                        <div x-show="isDelivery" x-transition class="flex justify-between text-xs md:text-sm text-brand-600 dark:text-brand-400 font-medium">
+                                            <p>Estimasi Ongkir</p>
+                                            <p x-text="formatRupiah(deliveryFee)"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-end mb-4 md:mb-6">
+                                    <p class="text-gray-700 dark:text-gray-300 font-bold text-sm md:text-base">Total Akhir</p>
+                                    <p class="text-xl md:text-2xl font-extrabold text-gray-900 dark:text-white" x-text="formatRupiah(grandTotal)"></p>
+                                </div>
+
+                                <div class="space-y-2 md:space-y-3">
+                                    <button type="button" @click="openCheckoutForm()" :disabled="cart.length === 0" class="w-full flex items-center justify-center rounded-xl border border-transparent bg-zendit-500 px-4 py-3 md:py-3.5 text-sm md:text-base font-bold text-white shadow-lg hover:bg-zendit-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed gap-2">
+                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                        Bayar Instan via Zendit
+                                    </button>
+                                    <button type="button" @click.prevent.stop="checkoutWA()" :disabled="cart.length === 0" class="w-full flex items-center justify-center rounded-xl border-2 border-brand-600 bg-transparent px-4 py-2.5 md:py-3 text-sm md:text-base font-bold text-brand-600 dark:text-brand-400 dark:border-brand-500 shadow-sm hover:bg-brand-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed gap-2">
+                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.161.453-.892.853-1.288.932-.303.06-.723.137-2.228-.485-1.802-.74-2.947-2.58-3.037-2.703-.09-.124-.725-.966-.725-1.843s.457-1.31.621-1.484c.135-.143.344-.194.524-.194.062 0 .118-.005.168-.005.158 0 .324-.015.485.378.165.405.539 1.32.586 1.415.048.095.079.206.015.334-.061.127-.095.206-.188.312-.093.107-.197.234-.278.326-.089.102-.184.214-.078.397.105.182.473.782 1.019 1.268.703.626 1.293.82 1.479.914.184.095.293.079.403-.047.112-.127.481-.559.613-.751.13-.191.261-.161.428-.1.168.06 1.059.5 1.242.592.184.094.306.142.352.223.045.08.045.467-.116.92zM12.015 2c5.514 0 10 4.486 10 10s-4.486 10-10 10c-1.856 0-3.593-.509-5.068-1.385l-4.947 1.303 1.325-4.819c-.96-1.503-1.51-3.296-1.51-5.204 0-5.514 4.486-10 10-10z"/></svg>
+                                        Checkout WhatsApp
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. MODAL FORM DATA PELANGGAN               -->
+    <!-- ========================================== -->
+    <div class="relative" style="z-index: 55;" aria-labelledby="form-title" role="dialog" aria-modal="true">
+        <div x-cloak x-show="isCheckoutFormOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-md transition-opacity" @click="isCheckoutFormOpen = false"></div>
+        <div x-cloak x-show="isCheckoutFormOpen" class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div x-show="isCheckoutFormOpen" 
+                     x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                     x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                     class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-slate-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 dark:border-slate-700">
+                    
+                    <div class="px-6 py-5 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Detail Pengiriman</h3>
+                        <button type="button" @click="isCheckoutFormOpen = false" class="text-gray-400 hover:text-red-500 transition focus:outline-none">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
+                    <div class="px-6 py-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Lengkap</label>
+                            <input type="text" x-model="customerData.name" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Masukkan nama penerima">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nomor Telepon / WA</label>
+                            <input type="tel" x-model="customerData.phone" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Contoh: 08123456789">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat Lengkap</label>
+                            <textarea x-model="customerData.address" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition resize-none" placeholder="Nama Jalan, RT/RW, Kelurahan, Kecamatan, Kota"></textarea>
+                        </div>
+
+                        <!-- Custom reCAPTCHA -->
+                        <div class="mt-4 p-3 md:p-4 border border-gray-200 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-900/50 flex items-center justify-between">
+                            <label class="flex items-center cursor-pointer group">
+                                <div class="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 mr-3 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded group-hover:border-brand-500 transition-colors shadow-sm">
+                                    <input type="checkbox" x-model="isNotRobot" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
+                                    <svg x-show="isNotRobot" x-transition.scale class="w-5 h-5 text-green-500 absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 select-none">Saya bukan robot</span>
+                            </label>
+                            <div class="flex flex-col items-center opacity-80">
+                                <svg class="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                                <span class="text-[8px] text-gray-500 mt-0.5 tracking-wider">reCAPTCHA</span>
+                            </div>
+                        </div>
+
+                        <button type="button" @click="proceedToPayment()" 
+                                :disabled="!customerData.name || !customerData.phone || !customerData.address || !isNotRobot" 
+                                class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
+                            Lanjut ke Pembayaran
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. ZENDIT DUMMY MODAL (POP-UP PEMBAYARAN)  -->
+    <!-- ========================================== -->
+    <div class="relative" style="z-index: 60;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        
+        <!-- Latar Belakang Gelap Modal -->
+        <div x-cloak x-show="isPaymentModalOpen" 
+             x-transition.opacity 
+             class="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-md transition-opacity" 
+             @click="if(paymentStep === 1) isPaymentModalOpen = false"></div>
+
+        <div x-cloak x-show="isPaymentModalOpen" class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                
+                <!-- Panel Utama Modal Zendit -->
+                <div x-show="isPaymentModalOpen" 
+                     x-transition:enter="ease-out duration-300" 
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                     x-transition:leave="ease-in duration-200" 
+                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                     class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-slate-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 dark:border-slate-700">
+                    
+                    <div x-cloak x-show="paymentStep === 1">
+                        <div class="bg-zendit-500 px-4 md:px-6 py-4 md:py-5 flex justify-between items-center border-b border-zendit-600">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-white p-1 md:p-1.5 rounded text-zendit-600 font-extrabold text-xs">Z</div>
+                                <span class="text-white font-bold text-lg md:text-xl tracking-wide">Zendit Checkout</span>
+                            </div>
+                            <button type="button" @click="isPaymentModalOpen = false" class="text-white/70 hover:text-white transition transform hover:rotate-90 focus:outline-none">
+                                <svg class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="px-4 md:px-6 py-5 md:py-6">
+                            <div class="text-center mb-5 md:mb-6 bg-gray-50 dark:bg-slate-900 py-3 md:py-4 rounded-2xl border border-gray-100 dark:border-slate-700">
+                                <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-1">Total Pembayaran</p>
+                                <h3 class="text-2xl md:text-3xl font-extrabold text-brand-600 dark:text-brand-400" x-text="formatRupiah(grandTotal)"></h3>
+                                <div class="flex justify-center gap-2 mt-2 text-[10px] md:text-xs">
+                                    <span x-show="includePPN" class="bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded font-bold">Inc. PPN</span>
+                                    <span x-show="isDelivery" class="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-0.5 rounded font-bold">Inc. Ongkir</span>
+                                </div>
+                            </div>
+
+                            <p class="font-bold text-gray-900 dark:text-white mb-3 md:mb-4 text-sm md:text-base">Pilih Metode Pembayaran</p>
+                            
+                            <div class="space-y-2 md:space-y-3">
+                                <label class="flex items-center p-3 md:p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-zendit-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'bca'}">
+                                    <input type="radio" x-model="selectedPayment" value="bca" class="h-4 w-4 md:h-5 md:w-5 text-zendit-500 focus:ring-zendit-500 border-gray-300">
+                                    <span class="ml-3 md:ml-4 font-semibold text-sm md:text-base text-gray-900 dark:text-white">BCA Virtual Account</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 md:p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-zendit-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'qris'}">
+                                    <input type="radio" x-model="selectedPayment" value="qris" class="h-4 w-4 md:h-5 md:w-5 text-zendit-500 focus:ring-zendit-500 border-gray-300">
+                                    <span class="ml-3 md:ml-4 font-semibold text-sm md:text-base text-gray-900 dark:text-white">QRIS (GoPay, OVO, Dana)</span>
+                                </label>
+                            </div>
+
+                            <button type="button" @click="processPayment()" :disabled="!selectedPayment" class="w-full mt-6 md:mt-8 bg-zendit-500 text-white rounded-xl py-3 md:py-4 font-bold text-base md:text-lg hover:bg-zendit-600 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
+                                Konfirmasi Pembayaran
+                            </button>
+                        </div>
+                    </div>
+
+                    <div x-cloak x-show="paymentStep === 2" class="px-6 py-16 md:py-20 text-center">
+                        <div class="flex justify-center mb-6 md:mb-8"><div class="loader border-l-zendit-500"></div></div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">Memproses Transaksi...</h3>
+                        <p class="text-sm md:text-base text-gray-500 dark:text-gray-400">Sistem sedang memverifikasi keamanan (Secure Payment).</p>
+                    </div>
+
+                    <div x-cloak x-show="paymentStep === 3" class="px-6 py-12 md:py-16 text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 md:h-20 md:w-20 rounded-full bg-green-100 dark:bg-green-900/50 mb-4 md:mb-6">
+                            <svg class="h-8 w-8 md:h-10 md:w-10 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3">Pembayaran Berhasil!</h3>
+                        <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-2">Terima kasih atas pesanan Anda.</p>
+<p class="text-sm md:text-base text-brand-600 dark:text-brand-400 font-bold mb-6 md:mb-8">Nomor PO: <span x-text="invoiceNumber"></span></p>                        
+                        <button type="button" @click="finishPayment()" class="w-full bg-brand-600 text-white rounded-xl py-3 md:py-4 font-bold text-sm md:text-base hover:bg-brand-700 transition shadow-lg">
+                            Selesai & Lacak Pesanan
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- PENUTUP BUNGKUS UTAMA -->
