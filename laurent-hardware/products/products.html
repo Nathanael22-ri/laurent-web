@@ -158,56 +158,88 @@
     <div id="footer-placeholder"></div>>
 
     <!-- QUICK VIEW MODAL (POP-UP KATALOG) -->
-    <div x-cloak x-show="isQuickViewOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="isQuickViewOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity" @click="closeQuickView()"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+<div x-cloak x-show="isQuickViewOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div x-show="isQuickViewOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity" @click="closeQuickView()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div x-show="isQuickViewOpen" 
-                 x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
-                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
-                 class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full border border-gray-100 dark:border-slate-700">
-                
-                <button @click="closeQuickView()" class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/50 dark:bg-gray-900/50 backdrop-blur rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-red-500 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+        <div x-show="isQuickViewOpen" 
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+             class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full border border-gray-100 dark:border-slate-700">
+            
+            <button @click="closeQuickView()" class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/50 dark:bg-gray-900/50 backdrop-blur rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-red-500 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
 
-                <template x-if="activeProduct">
-                    <div class="flex flex-col md:flex-row">
-                        <div class="w-full md:w-1/2 h-64 md:h-auto relative bg-gray-100 dark:bg-slate-700 p-8 flex items-center justify-center">
-                            <img :src="'../' + activeProduct.image" :alt="activeProduct.name" class="max-w-full max-h-full object-contain">
+            <!-- HANYA SATU TEMPLATE UTAMA DI SINI -->
+            <template x-if="activeProduct">
+                <div class="flex flex-col md:flex-row">
+                    <!-- Kotak Slider Gambar Baru -->
+                    <div class="w-full md:w-1/2 h-80 md:h-auto relative bg-gray-100 dark:bg-slate-700 p-8 flex items-center justify-center group overflow-hidden">
+                        <!-- Gambar Aktif -->
+                        <img :src="'../' + activeProductImages[activeImageIndex]" :alt="activeProduct.name" class="max-w-full max-h-full object-contain transition-all duration-300">
+
+                        <!-- Tombol Panah Kiri -->
+                        <template x-if="activeProductImages.length > 1">
+                            <button @click.stop="prevImage()" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 p-2.5 rounded-full shadow-lg transition text-gray-800 dark:text-white focus:outline-none">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                        </template>
+
+                        <!-- Tombol Panah Kanan -->
+                        <template x-if="activeProductImages.length > 1">
+                            <button @click.stop="nextImage()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 p-2.5 rounded-full shadow-lg transition text-gray-800 dark:text-white focus:outline-none">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                        </template>
+
+                        <!-- Thumbnail Indikator di Bawah -->
+                        <template x-if="activeProductImages.length > 1">
+                            <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 px-4 overflow-x-auto">
+                                <template x-for="(img, idx) in activeProductImages" :key="idx">
+                                    <button @click="activeImageIndex = idx" 
+                                            class="w-12 h-12 rounded-lg overflow-hidden bg-white dark:bg-slate-800 border-2 transition flex-shrink-0"
+                                            :class="activeImageIndex === idx ? 'border-brand-600 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'">
+                                        <img :src="'../' + img" class="w-full h-full object-cover">
+                                    </button>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Kolom Informasi Produk -->
+                    <div class="w-full md:w-1/2 p-6 md:p-10 max-h-[85vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
+                        <span class="text-sm font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest" x-text="getCategoryName(activeProduct.category)"></span>
+                        <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mt-2 mb-2 leading-tight" x-text="activeProduct.name"></h2>
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-3xl font-bold text-gray-900 dark:text-white" x-text="formatRupiah(activeProduct.price)"></span>
+                            <span x-show="activeProduct.badge" class="bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" x-text="activeProduct.badge"></span>
                         </div>
-                        <div class="w-full md:w-1/2 p-6 md:p-10 max-h-[85vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
-                            <span class="text-sm font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest" x-text="getCategoryName(activeProduct.category)"></span>
-                            <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mt-2 mb-2 leading-tight" x-text="activeProduct.name"></h2>
-                            <div class="flex items-center gap-4 mb-6">
-                                <span class="text-3xl font-bold text-gray-900 dark:text-white" x-text="formatRupiah(activeProduct.price)"></span>
-                                <span x-show="activeProduct.badge" class="bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" x-text="activeProduct.badge"></span>
-                            </div>
-                            <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed" x-text="activeProduct.fullDesc"></p>
-                            <div class="mb-8">
-                                <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase mb-3 border-b border-gray-200 dark:border-slate-700 pb-2">Spesifikasi Utama</h4>
-                                <ul class="space-y-2">
-                                    <template x-for="spec in activeProduct.specs" :key="spec">
-                                        <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
-                                            <svg class="w-5 h-5 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            <span x-text="spec"></span>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </div>
-                            <div class="flex gap-4">
-                                <button @click="addToCart(activeProduct); closeQuickView()" class="flex-1 py-4 rounded-xl bg-brand-600 text-white font-bold text-lg hover:bg-brand-700 transition shadow-lg transform active:scale-95 flex justify-center items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                    Tambah ke Keranjang
-                                </button>
-                            </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed" x-text="activeProduct.fullDesc"></p>
+                        <div class="mb-8">
+                            <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase mb-3 border-b border-gray-200 dark:border-slate-700 pb-2">Spesifikasi Utama</h4>
+                            <ul class="space-y-2">
+                                <template x-for="spec in activeProduct.specs" :key="spec">
+                                    <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+                                        <svg class="w-5 h-5 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        <span x-text="spec"></span>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div class="flex gap-4">
+                            <button @click="addToCart(activeProduct); closeQuickView()" class="flex-1 py-4 rounded-xl bg-brand-600 text-white font-bold text-lg hover:bg-brand-700 transition shadow-lg transform active:scale-95 flex justify-center items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                Tambah ke Keranjang
+                            </button>
                         </div>
                     </div>
-                </template>
-            </div>
+                </div>
+            </template>
         </div>
     </div>
+</div>
 
     <!-- CART DRAWER & ZENDIT MODAL -->
     <div id="cart-placeholder"></div>
@@ -362,6 +394,7 @@
                 // --- STATE PRODUK ---
                 products: [],
                 activeProduct: null,
+                activeImageIndex: 0,
                 searchQuery: '',
                 selectedCategory: 'all',
                 sortBy: 'newest',
@@ -382,6 +415,48 @@
                     this.$watch('isDark', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); }); 
                     this.fetchProducts(); 
                 },
+
+                // sliding images modal
+                // --- QUICK VIEW & SLIDER ---
+activeImageIndex: 0,
+
+openQuickView(product) { 
+    this.activeProduct = product; 
+    this.activeImageIndex = 0; // Reset ke gambar pertama saat modal dibuka
+    this.isQuickViewOpen = true; 
+},
+
+closeQuickView() { 
+    this.isQuickViewOpen = false; 
+    setTimeout(() => { 
+        this.activeProduct = null; 
+        this.activeImageIndex = 0; 
+    }, 300); 
+},
+
+// Helper untuk menangani 1 atau banyak gambar produk
+get activeProductImages() {
+    if (!this.activeProduct) return [];
+    return this.activeProduct.images || [this.activeProduct.image];
+},
+
+// tes
+// get activeProductImages() {
+//     if (!this.activeProduct) return [];
+//     // Simulasi duplikat gambar agar tombol slider muncul
+//     let img = this.activeProduct.image;
+//     return [img, img, img]; 
+// },
+
+nextImage() {
+    const imgs = this.activeProductImages;
+    this.activeImageIndex = (this.activeImageIndex + 1) % imgs.length;
+},
+
+prevImage() {
+    const imgs = this.activeProductImages;
+    this.activeImageIndex = (this.activeImageIndex - 1 + imgs.length) % imgs.length;
+},
 
                 fetchProducts() {
                     fetch('../api/get_products.php')
@@ -419,8 +494,8 @@
                 },
 
                 // --- QUICK VIEW ---
-                openQuickView(product) { this.activeProduct = product; this.isQuickViewOpen = true; },
-                closeQuickView() { this.isQuickViewOpen = false; setTimeout(() => { this.activeProduct = null; }, 300); },
+                // openQuickView(product) { this.activeProduct = product; this.isQuickViewOpen = true; },
+                // closeQuickView() { this.isQuickViewOpen = false; setTimeout(() => { this.activeProduct = null; }, 300); },
 
                 // --- KERANJANG (CART) ---
                 addToCart(product) {
