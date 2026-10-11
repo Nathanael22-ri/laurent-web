@@ -124,7 +124,7 @@
                 <template x-for="product in filteredProducts" :key="product.id">
                     <div class="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col border border-gray-100 dark:border-slate-700" data-aos="fade-up">
                         <div class="relative overflow-hidden h-56 bg-gray-100 dark:bg-slate-700 p-4 flex items-center justify-center">
-                            <img :src="product.image" :alt="product.name" class="w-full h-full object-contain transform group-hover:scale-110 transition duration-700">
+                            <img :src="'../' + product.image" :alt="product.name" class="w-full h-full object-contain transform group-hover:scale-110 transition duration-700">
                             <div x-show="product.badge" class="absolute top-3 left-3 bg-brand-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md tracking-wide" x-text="product.badge"></div>
                             
                             <!-- Quick View Overlay -->
