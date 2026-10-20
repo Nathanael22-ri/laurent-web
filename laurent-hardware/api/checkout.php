@@ -7,7 +7,8 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 // Validasi sederhana
 if (!$data || empty($data['cart'])) {
-    die(json_encode(['status' => 'error', 'message' => 'Data pesanan kosong atau tidak valid.']));
+    echo json_encode(['status' => 'error', 'message' => 'Data pesanan kosong atau tidak valid.']);
+    exit;
 }
 
 try {
@@ -23,9 +24,30 @@ try {
     ]);
     $customerId = $pdo->lastInsertId(); // Ambil ID pelanggan yang baru saja dibuat
 
-    // 2. Simpan Data Pesanan Utama (ke tabel orders)
-    // Membuat nomor invoice unik otomatis (Contoh: LAU-20261025-A1B2C)
-    $invoiceNumber = 'LAU-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 5));
+    // 2. Membuat Nomor Invoice Otomatis (Format: LAU-YYYYMMDD-0, LAU-YYYYMMDD-1, dst.)
+    $todayPrefix = 'LAU-' . date('Ymd') . '-';
+
+    // Cek nomor invoice terakhir pada hari yang sama di database
+    $stmtSeq = $pdo->prepare("
+        SELECT invoice_number 
+        FROM orders 
+        WHERE invoice_number LIKE ? 
+        ORDER BY id DESC 
+        LIMIT 1
+    ");
+    $stmtSeq->execute([$todayPrefix . '%']);
+    $lastOrder = $stmtSeq->fetch(PDO::FETCH_ASSOC);
+
+    // Tentukan nomor urut: mulai dari 0 jika belum ada pesanan hari ini, atau increment dari yang terakhir
+    $nextNumber = 0; 
+    if ($lastOrder) {
+        $lastSequence = (int) substr($lastOrder['invoice_number'], strlen($todayPrefix));
+        $nextNumber = $lastSequence + 1;
+    }
+
+    $invoiceNumber = $todayPrefix . $nextNumber;
+
+    // 3. Simpan Data Pesanan Utama (ke tabel orders)
     $grandTotal = $data['grandTotal'];
     $paymentMethod = strtoupper($data['paymentMethod']); // BCA atau QRIS
     $status = 'pending'; // Status default untuk diverifikasi admin nanti
@@ -40,7 +62,7 @@ try {
     ]);
     $orderId = $pdo->lastInsertId(); // Ambil ID pesanan yang baru dibuat
 
-    // 3. Simpan Rincian Barang (ke tabel orders_item)
+    // 4. Simpan Rincian Barang (ke tabel orders_item)
     $stmtItem = $pdo->prepare("INSERT INTO orders_item (order_id, product_id, qty, price) VALUES (:order_id, :product_id, :qty, :price)");
     
     foreach ($data['cart'] as $item) {

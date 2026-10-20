@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth" x-data="trackAndCartStore()" :class="{ 'dark': isDark }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lacak Pesanan - Laurent Hardware</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Script Tema (Dark Mode Anti-FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f3f6fc',
+                            100: '#e6edf8',
+                            400: '#6484c4',
+                            500: '#4a6eb3',
+                            600: '#344f96',
+                            700: '#2a407a',
+                            900: '#1c294d',
+                        },
+                        zendit: {
+                            500: '#002060',
+                            600: '#001a4d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="font-sans text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-slate-900 min-h-screen flex flex-col justify-between transition-colors duration-300" :class="{ 'overflow-hidden': isCartOpen || isPaymentModalOpen || isCheckoutFormOpen }">
+
+    <!-- Navbar Responsif Dinamis -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Main Content Area -->
+    <main class="max-w-3xl mx-auto px-4 py-28 flex-grow w-full">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Lacak Pesanan Anda</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Masukkan nomor invoice untuk memeriksa status pembayaran, verifikasi, dan pengemasan produk Anda.</p>
+        </div>
+
+        <!-- Form Pencarian -->
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 mb-8 transition-colors">
+            <form @submit.prevent="searchOrder" class="flex flex-col sm:flex-row gap-3">
+                <input 
+                    type="text" 
+                    x-model="invoiceQuery" 
+                    placeholder="Contoh: LAU-20261020-001" 
+                    class="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-transparent transition-colors"
+                    required
+                >
+                <button 
+                    type="submit" 
+                    :disabled="loading"
+                    class="px-6 py-3 bg-brand-600 text-white font-medium rounded-xl hover:bg-brand-700 transition duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                    <span x-show="!loading">Lacak</span>
+                    <span x-show="loading" class="animate-spin">🌀</span>
+                </button>
+            </form>
+
+            <!-- Pesan Error / Not Found -->
+            <div x-show="errorMessage" x-text="errorMessage" class="mt-4 p-4 text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded-xl border border-red-100 dark:border-red-800" x-cloak></div>
+        </div>
+
+        <!-- Detail & Timeline Pesanan -->
+        <template x-if="order">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 transition-colors">
+                <!-- Info Ringkas Invoice -->
+                <div class="flex flex-wrap justify-between items-center pb-6 mb-6 border-b border-gray-100 dark:border-slate-700 gap-4">
+                    <div>
+                        <span class="text-xs text-gray-400 dark:text-gray-500 block uppercase font-semibold">Nomor Invoice</span>
+                        <span class="text-lg font-bold text-gray-900 dark:text-white" x-text="order.invoice_number"></span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-400 dark:text-gray-500 block uppercase font-semibold">Total Pembayaran</span>
+                        <span class="text-lg font-bold text-brand-600 dark:text-brand-400" x-text="formatRupiah(order.grand_total)"></span>
+                    </div>
+                </div>
+
+                <!-- Pesanan Dibatalkan -->
+                <template x-if="order.is_canceled">
+                    <div class="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl text-center font-medium border border-red-200 dark:border-red-800">
+                        ❌ Pesanan ini telah dibatalkan.
+                    </div>
+                </template>
+
+                <!-- Status Timeline (Jika Tidak Canceled) -->
+                <template x-if="!order.is_canceled">
+                    <div class="space-y-6">
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Status Progres Pesanan</h3>
+                        
+                        <div class="relative pl-8 space-y-8 before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200 dark:before:bg-slate-700">
+                            
+                            <!-- Step 1: Pesanan Dibuat -->
+                            <div class="relative flex items-start">
+                                <div class="absolute -left-8 p-1 rounded-full bg-green-500 text-white">
+                                    ✓
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Pesanan Dibuat</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="order.created_at"></p>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Pembayaran (Paid) -->
+                            <div class="relative flex items-start">
+                                <div 
+                                    class="absolute -left-8 p-1 rounded-full text-white"
+                                    :class="order.is_paid ? 'bg-green-500' : 'bg-gray-300 dark:bg-slate-700'"
+                                >
+                                    <span x-text="order.is_paid ? '✓' : '•'"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium" :class="order.is_paid ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'">Pembayaran Terkonfirmasi</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="order.is_paid ? 'Pembayaran berhasil diterima' : 'Menunggu pembayaran'"></p>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Verifikasi / ACC (verified_by) -->
+                            <div class="relative flex items-start">
+                                <div 
+                                    class="absolute -left-8 p-1 rounded-full text-white"
+                                    :class="order.is_verified ? 'bg-green-500' : 'bg-gray-300 dark:bg-slate-700'"
+                                >
+                                    <span x-text="order.is_verified ? '✓' : '•'"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium" :class="order.is_verified ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'">Disetujui / ACC Admin</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="order.is_verified ? 'Pesanan telah diverifikasi oleh petugas' : 'Pesanan belum di-ACC/ditinjau oleh admin'"></p>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Dikemas & Siap Kirim -->
+                            <div class="relative flex items-start">
+                                <div 
+                                    class="absolute -left-8 p-1 rounded-full text-white"
+                                    :class="(order.is_paid && order.is_verified) ? 'bg-green-500' : 'bg-gray-300 dark:bg-slate-700'"
+                                >
+                                    <span x-text="(order.is_paid && order.is_verified) ? '✓' : '•'"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium" :class="(order.is_paid && order.is_verified) ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'">Dikemas & Siap Dikirim</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="(order.is_paid && order.is_verified) ? 'Barang sedang/sudah dikemas untuk pengiriman' : 'Menunggu verifikasi dan pembayaran'"></p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </main>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Cart Drawer Placeholder -->
+    <div id="cart-placeholder"></div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('trackAndCartStore', () => ({
+                isDark: document.documentElement.classList.contains('dark'),
+                isCartOpen: false,
+                isMobileMenuOpen: false,
+
+                // --- STATE LACAK PESANAN ---
+                invoiceQuery: '',
+                order: null,
+                loading: false,
+                errorMessage: '',
+
+                // --- STATE KERANJANG & FORM PELANGGAN ---
+                isCheckoutFormOpen: false,
+                customerData: { name: '', phone: '', address: '' },
+                isNotRobot: false,
+                invoiceNumber: '',
+
+                cart: [],
+                includePPN: false,
+                isDelivery: false,
+                appFee: 2500,
+                deliveryFee: 50000,
+                isPaymentModalOpen: false,
+                paymentStep: 1, 
+                selectedPayment: null,
+
+                // --- FUNGSI LACAK PESANAN ---
+                async searchOrder() {
+                    if (!this.invoiceQuery.trim()) return;
+                    
+                    this.loading = true;
+                    this.errorMessage = '';
+                    this.order = null;
+
+                    try {
+                        const response = await fetch(`api/track_order.php?invoice=${encodeURIComponent(this.invoiceQuery.trim())}`);
+                        const result = await response.json();
+
+                        if (result.status === 'success') {
+                            this.order = result.data;
+                        } else {
+                            this.errorMessage = result.message;
+                        }
+                    } catch (error) {
+                        this.errorMessage = 'Terjadi kendala saat menghubungkan ke server.';
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                // --- FUNGSI TEMA & KERANJANG ---
+                toggleTheme() {
+                    this.isDark = !this.isDark;
+                    if (this.isDark) {
+                        localStorage.setItem('theme', 'dark');
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        localStorage.setItem('theme', 'light');
+                        document.documentElement.classList.remove('dark');  
+                    }
+                },
+
+                addToCart(product) {
+                    const itemIndex = this.cart.findIndex(item => item.id === product.id);
+                    if (itemIndex > -1) this.cart[itemIndex].qty += 1;
+                    else this.cart.push({ ...product, qty: 1 });
+                    this.isCartOpen = true; 
+                },
+                updateQty(id, change) {
+                    const item = this.cart.find(i => i.id === id);
+                    if (item) {
+                        item.qty += change;
+                        if (item.qty <= 0) this.removeFromCart(id);
+                    }
+                },
+                removeFromCart(id) { this.cart = this.cart.filter(item => item.id !== id); },
+                get totalItems() { return this.cart.reduce((total, item) => total + item.qty, 0); },
+                
+                get cartTotal() { return this.cart.reduce((total, item) => total + (item.price * item.qty), 0); },
+                get ppnAmount() { return this.includePPN ? (this.cartTotal * 0.11) : 0; },
+                get activeDeliveryFee() { return this.isDelivery ? this.deliveryFee : 0; },
+                get grandTotal() { 
+                    if(this.cart.length === 0) return 0;
+                    return this.cartTotal + this.ppnAmount + this.appFee + this.activeDeliveryFee; 
+                },
+                formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); }
+            }));
+        });
+    </script>
+
+    <script>
+        const noCache = '?v=' + new Date().getTime();
+
+        fetch('navbar/navbar.html' + noCache)
+            .then(response => {
+                if (!response.ok) throw new Error('Navbar gagal dimuat');
+                return response.text();
+            })
+            .then(data => { document.getElementById('navbar-placeholder').innerHTML = data; })
+            .catch(error => console.error('Gagal memuat navbar:', error));
+
+        fetch('footer/footer.html' + noCache)
+            .then(response => {
+                if (!response.ok) throw new Error('Footer gagal dimuat');
+                return response.text();
+            })
+            .then(data => { document.getElementById('footer-placeholder').innerHTML = data; })
+            .catch(error => console.error('Gagal memuat footer:', error));
+
+        fetch('cart/cart.html' + noCache)
+            .then(response => {
+                if (!response.ok) throw new Error('Cart gagal dimuat');
+                return response.text();
+            })
+            .then(data => { document.getElementById('cart-placeholder').innerHTML = data; })
+            .catch(error => console.error('Gagal memuat cart:', error));
+    </script>
+</body>
+</html>

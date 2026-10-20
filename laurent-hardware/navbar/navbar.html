@@ -1,4 +1,19 @@
-<nav class="fixed w-full z-40 glass transition-all duration-300" x-data="{ path: window.location.pathname, inShop: window.location.pathname.includes('/products/'), isMobileMenuOpen: false }">
+<nav class="fixed w-full z-40 glass transition-all duration-300" x-data="{ 
+    path: window.location.pathname, 
+    inShop: window.location.pathname.includes('/products/'), 
+    isMobileMenuOpen: false,
+    isDark: document.documentElement.classList.contains('dark'),
+    toggleTheme() {
+        this.isDark = !this.isDark;
+        if (this.isDark) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    }
+}">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
             <!-- Logo -->
@@ -18,10 +33,10 @@
                 
                 <a :href="inShop ? 'products.html' : 'products/products.html'" :class="path.includes('products.html') || inShop ? 'text-brand-600 dark:text-brand-400 font-bold border-b-2 border-brand-600 pb-1' : 'text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400'" class="transition">Shop</a>
                 
-                <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                    Lacak Pesanan
-                </a>
+                <a :href="inShop ? '../track.html' : 'track.html'" :class="path.includes('track.html') ? 'text-brand-600 dark:text-brand-400 font-bold border-b-2 border-brand-600 pb-1' : 'text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400'" class="transition flex items-center gap-1">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+    Lacak Pesanan
+</a>
                 
                 <div class="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
 
@@ -68,10 +83,10 @@
             
             <a :href="inShop ? 'products.html' : 'products/products.html'" @click="isMobileMenuOpen = false" :class="path.includes('products.html') || inShop ? 'bg-brand-50 dark:bg-slate-800 text-brand-600 dark:text-brand-400' : 'text-gray-900 dark:text-white hover:bg-brand-50 dark:hover:bg-slate-800'" class="block px-4 py-3 rounded-xl text-base font-bold transition">Shop</a>
             
-            <a href="#" @click="isMobileMenuOpen = false" class="block px-4 py-3 mt-4 bg-gray-100 dark:bg-slate-800 rounded-xl text-base font-bold text-gray-900 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                Lacak Pesanan
-            </a>
+            <a :href="inShop ? '../track.html' : 'track.html'" @click="isMobileMenuOpen = false" :class="path.includes('track.html') ? 'bg-brand-50 dark:bg-slate-800 text-brand-600 dark:text-brand-400' : 'text-gray-900 dark:text-white hover:bg-brand-50 dark:hover:bg-slate-800'" class="block px-4 py-3 mt-4 rounded-xl text-base font-bold transition flex items-center gap-2">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+    Lacak Pesanan
+</a>
         </div>
     </div>
 </nav>

@@ -354,16 +354,17 @@
                     <p class="text-gray-500 dark:text-gray-400">Sistem sedang memverifikasi keamanan (Secure Payment).</p>
                 </div>
                 <div x-show="paymentStep === 3" class="px-6 py-16 text-center">
-                    <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/50 mb-6">
-                        <svg class="h-10 w-10 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                    </div>
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Pembayaran Berhasil!</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-2">Terima kasih atas pesanan Anda.</p>
-                    <p class="text-brand-600 dark:text-brand-400 font-bold mb-8">Nomor PO: LAU-2609-XYZ98</p>
-                    <button @click="finishPayment()" class="w-full bg-brand-600 text-white rounded-xl py-4 font-bold hover:bg-brand-700 transition shadow-lg">
-                        Selesai & Lacak Pesanan
-                    </button>
-                </div>
+    <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/50 mb-6">
+        <svg class="h-10 w-10 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+    </div>
+    <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Pembayaran Berhasil!</h3>
+    <p class="text-gray-600 dark:text-gray-400 mb-2">Terima kasih atas pesanan Anda.</p>
+    <!-- Ubah teks statis di bawah ini menggunakan x-text="invoiceNumber" -->
+    <p class="text-brand-600 dark:text-brand-400 font-bold mb-8">Nomor PO: <span x-text="invoiceNumber"></span></p>
+    <button @click="finishPayment()" class="w-full bg-brand-600 text-white rounded-xl py-4 font-bold hover:bg-brand-700 transition shadow-lg">
+        Selesai & Lacak Pesanan
+    </button>
+</div>
             </div>
         </div>
     </div>
