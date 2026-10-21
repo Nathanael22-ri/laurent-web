@@ -70,11 +70,12 @@
                     <!-- Kategori -->
                     <select x-model="selectedCategory" class="block w-1/2 md:w-auto flex-grow py-2.5 md:py-2 pl-3 pr-8 border border-gray-200 dark:border-slate-600 md:border-none rounded-xl md:rounded-full bg-white dark:bg-slate-700 md:bg-transparent md:dark:bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-0 text-xs md:text-sm font-medium cursor-pointer appearance-none text-center shadow-sm md:shadow-none">
     <option value="all" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Semua Kategori</option>
-    <option value="smart-lock" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Smart Lock</option>
-    <option value="cctv-camera" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">CCTV Camera</option>
-    <option value="access-control" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Access Control</option>
-    <option value="safety-box" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Safety Box</option>
-    <option value="accessories" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Aksesoris & Lainnya</option>
+    <option value="automatic-door" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Automatic Door</option>
+    <option value="door-closer-045" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Door Closer 045</option>
+    <option value="door-closer-sliding" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Door Closer Sliding</option>
+    <option value="laurent-door-stopper" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Door Stopper 003</option>
+    <option value="dowsil-glass" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Dowsil Glass</option>
+    <option value="clip-l" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Glass Clip L Matte Black</option>
 </select>
                     
                     <!-- Divider (Mobile & Desktop) -->
@@ -166,6 +167,8 @@
         </div>
     </section>
 
+    <div id="cart-placeholder"></div>
+
     <!-- FOOTER -->
      <!-- FOOTER DINAMIS -->
     <div id="footer-placeholder"></div>
@@ -190,11 +193,57 @@
         selectedCategory: 'all',
         sortBy: 'newest',
 
+        // Tambahkan di dalam return object hardwareStore()
+cart: JSON.parse(localStorage.getItem('cart')) || [],
+isCartOpen: false,
+isCheckoutFormOpen: false,
+isPaymentModalOpen: false,
+includePPN: false,
+isDelivery: false,
+appFee: 2500,
+deliveryFee: 50000,
+paymentStep: 1,
+selectedPayment: null,
+invoiceNumber: '',
+customerData: { name: '', phone: '', address: '' },
+isNotRobot: false,
+copiedNotice: false,
+
         // 2. Tambahkan fetch data di init
         init() { 
-            this.$watch('isDark', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); }); 
-            this.fetchProducts();
-        },
+    this.$watch('isDark', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); }); 
+    
+    // Tambahkan watcher keranjang
+    this.$watch('cart', val => {
+        localStorage.setItem('cart', JSON.stringify(val));
+    }, { deep: true });
+
+    this.fetchProducts();
+},
+
+trackOrderAndCopy() {
+    if (this.invoiceNumber) {
+        // Menyalin nomor invoice ke clipboard sistem
+        navigator.clipboard.writeText(this.invoiceNumber).then(() => {
+            this.copiedNotice = true;
+
+            // Jeda sebentar untuk menampilkan teks sukses, lalu arahkan ke halaman track
+            setTimeout(() => {
+                this.copiedNotice = false;
+                this.finishPayment(); // Reset keranjang & tutup modal
+
+                // Sesuaikan path jika berada di subfolder /products/
+                const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+                window.location.href = trackUrl;
+            }, 800);
+        }).catch(err => {
+            console.error('Gagal menyalin ke clipboard:', err);
+            // Fallback langsung pindah halaman jika izin diblokir browser
+            const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+            window.location.href = trackUrl;
+        });
+    }
+},
 
         // 3. Fungsi untuk menarik data dari PHP
         fetchProducts() {
@@ -259,7 +308,70 @@
         orderSingleWA(product) {
             const textMsg = `*Halo Laurent Hardware*\nSaya tertarik dan ingin memesan produk dari katalog:\n\n*${product.name}*\nHarga: ${this.formatRupiah(product.price)}\n\nMohon informasi ketersediaan dan ongkos kirim. Terima kasih.`;
             window.open(`https://wa.me/6281212382003?text=${encodeURIComponent(textMsg)}`, '_blank');
-        }
+        },
+
+        addToCart(product) {
+    const itemIndex = this.cart.findIndex(item => item.id === product.id);
+    if (itemIndex > -1) this.cart[itemIndex].qty += 1;
+    else this.cart.push({ ...product, qty: 1 });
+    this.isCartOpen = true;
+},
+updateQty(id, change) {
+    const item = this.cart.find(i => i.id === id);
+    if (item) {
+        item.qty += change;
+        if (item.qty <= 0) this.removeFromCart(id);
+    }
+},
+removeFromCart(id) { this.cart = this.cart.filter(item => item.id !== id); },
+get totalItems() { return this.cart.reduce((total, item) => total + item.qty, 0); },
+get cartTotal() { return this.cart.reduce((total, item) => total + (item.price * item.qty), 0); },
+get ppnAmount() { return this.includePPN ? (this.cartTotal * 0.11) : 0; },
+get activeDeliveryFee() { return this.isDelivery ? this.deliveryFee : 0; },
+get grandTotal() { 
+    if(this.cart.length === 0) return 0;
+    return this.cartTotal + this.ppnAmount + this.appFee + this.activeDeliveryFee; 
+},
+openCheckoutForm() { 
+    this.isCartOpen = false; 
+    setTimeout(() => { this.isCheckoutFormOpen = true; }, 300); 
+},
+isValidPhone(phone) {
+    if (!phone) return false;
+    const cleanPhone = phone.replace(/[\s-]/g, '');
+    const phoneRegex = /^(?:\+62|62|08)[0-9]{8,13}$/;
+    return phoneRegex.test(cleanPhone);
+},
+proceedToPayment() {
+    this.customerData.name = this.customerData.name ? this.customerData.name.trim() : '';
+    this.customerData.phone = this.customerData.phone ? this.customerData.phone.trim() : '';
+    this.customerData.address = this.customerData.address ? this.customerData.address.trim() : '';
+
+    if (!this.customerData.name || !this.customerData.phone || !this.customerData.address) {
+        alert('Mohon lengkapi semua data pengiriman dengan benar.');
+        return; 
+    }
+    if (!this.isValidPhone(this.customerData.phone)) {
+        alert('Format nomor WhatsApp / Telepon tidak valid.');
+        return;
+    }
+    if (!this.isNotRobot) {
+        alert('Mohon verifikasi centang "Saya bukan robot".');
+        return;
+    }
+    this.isCheckoutFormOpen = false;
+    this.paymentStep = 1; 
+    this.selectedPayment = null; 
+    setTimeout(() => { this.isPaymentModalOpen = true; }, 300); 
+},
+finishPayment() { 
+    this.isPaymentModalOpen = false; 
+    this.cart = []; 
+    this.includePPN = false; 
+    this.isDelivery = false; 
+    this.customerData = { name: '', phone: '', address: '' };
+    this.isNotRobot = false;
+},
     }));
 });
     </script>
@@ -281,6 +393,13 @@
             })
             .then(data => { document.getElementById('footer-placeholder').innerHTML = data; })
             .catch(error => console.error('Gagal memuat footer:', error));
+
+        // Pastikan script fetch cart ini ada di bagian bawah file about.html & catalogue.html
+    fetch('cart/cart.html')
+        .then(response => response.text())
+        .then(data => { 
+            document.getElementById('cart-placeholder').innerHTML = data;
+        });
 
     </script>
 </body>

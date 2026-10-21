@@ -304,16 +304,16 @@
                 <!-- Form Body -->
                 <div class="px-6 py-6 space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Lengkap</label>
-                        <input type="text" x-model="customerData.name" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Masukkan nama penerima">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Lengkap <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="customerData.name" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Masukkan nama penerima">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nomor Telepon / WA</label>
-                        <input type="tel" x-model="customerData.phone" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Contoh: 08123456789">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nomor Telepon / WA <span class="text-red-500">*</span></label>
+                        <input type="tel" x-model="customerData.phone" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Contoh: 08123456789">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat Lengkap</label>
-                        <textarea x-model="customerData.address" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition resize-none" placeholder="Nama Jalan, RT/RW, Kelurahan, Kecamatan, Kota"></textarea>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat Lengkap <span class="text-red-500">*</span></label>
+                        <textarea x-model="customerData.address" required rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition resize-none" placeholder="Nama Jalan, RT/RW, Kelurahan, Kecamatan, Kota"></textarea>
                     </div>
 
                     <!-- Custom reCAPTCHA Simulation -->
@@ -332,9 +332,9 @@
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
+                    <!-- Submit Button dengan validasi data kosong, recaptcha, dan format nomor telepon -->
                     <button @click="proceedToPayment()" 
-                            :disabled="!customerData.name || !customerData.phone || !customerData.address || !isNotRobot" 
+                            :disabled="!customerData.name || !customerData.name.trim() || !customerData.phone || !customerData.phone.trim() || !customerData.address || !customerData.address.trim() || !isNotRobot || !isValidPhone(customerData.phone)" 
                             class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
                         Lanjut ke Pembayaran
                     </button>
@@ -345,7 +345,6 @@
 
     
 
-    <!-- Script Init -->
     <!-- Script Init -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -364,7 +363,7 @@
                 invoiceNumber: '',
 
                 // --- STATE KERANJANG & PEMBAYARAN ---
-                cart: [],
+                cart: JSON.parse(localStorage.getItem('cart')) || [],
                 includePPN: false,
                 isDelivery: false,
                 appFee: 2500,
@@ -372,13 +371,48 @@
                 isPaymentModalOpen: false,
                 paymentStep: 1, 
                 selectedPayment: null,
+                copiedNotice: false,
                 
                 products: [],
 
-                init() {
-                    this.fetchProducts();
-                },
+                init() { 
+    // Watcher untuk tema gelap/terang
+    this.$watch('isDark', val => { 
+        localStorage.setItem('theme', val ? 'dark' : 'light'); 
+    }); 
 
+    // Watcher baru untuk menyimpan data keranjang otomatis ke localStorage
+    this.$watch('cart', val => {
+        localStorage.setItem('cart', JSON.stringify(val));
+    }, { deep: true });
+
+    this.fetchProducts(); 
+},
+
+
+trackOrderAndCopy() {
+    if (this.invoiceNumber) {
+        // Menyalin nomor invoice ke clipboard sistem
+        navigator.clipboard.writeText(this.invoiceNumber).then(() => {
+            this.copiedNotice = true;
+
+            // Jeda sebentar untuk menampilkan teks sukses, lalu arahkan ke halaman track
+            setTimeout(() => {
+                this.copiedNotice = false;
+                this.finishPayment(); // Reset keranjang & tutup modal
+
+                // Sesuaikan path jika berada di subfolder /products/
+                const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+                window.location.href = trackUrl;
+            }, 800);
+        }).catch(err => {
+            console.error('Gagal menyalin ke clipboard:', err);
+            // Fallback langsung pindah halaman jika izin diblokir browser
+            const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+            window.location.href = trackUrl;
+        });
+    }
+},
                 // Fetch data menggunakan path sejajar (karena index.html ada di luar)
                 fetchProducts() {
                     fetch('api/get_public_products.php')
@@ -435,12 +469,38 @@
                     setTimeout(() => { this.isCheckoutFormOpen = true; }, 300); 
                 },
 
-                proceedToPayment() {
-                    this.isCheckoutFormOpen = false;
-                    this.paymentStep = 1; 
-                    this.selectedPayment = null; 
-                    setTimeout(() => { this.isPaymentModalOpen = true; }, 300); 
-                },
+                isValidPhone(phone) {
+    if (!phone) return false;
+    const cleanPhone = phone.replace(/[\s-]/g, '');
+    const phoneRegex = /^(?:\+62|62|08)[0-9]{8,13}$/;
+    return phoneRegex.test(cleanPhone);
+},
+
+proceedToPayment() {
+    this.customerData.name = this.customerData.name ? this.customerData.name.trim() : '';
+    this.customerData.phone = this.customerData.phone ? this.customerData.phone.trim() : '';
+    this.customerData.address = this.customerData.address ? this.customerData.address.trim() : '';
+
+    if (!this.customerData.name || !this.customerData.phone || !this.customerData.address) {
+        alert('Mohon lengkapi semua data pengiriman dengan benar.');
+        return; 
+    }
+
+    if (!this.isValidPhone(this.customerData.phone)) {
+        alert('Format nomor WhatsApp / Telepon tidak valid. Gunakan nomor yang benar (Contoh: 08123456789 atau +628123456789).');
+        return;
+    }
+
+    if (!this.isNotRobot) {
+        alert('Mohon verifikasi centang "Saya bukan robot".');
+        return;
+    }
+
+    this.isCheckoutFormOpen = false;
+    this.paymentStep = 1; 
+    this.selectedPayment = null; 
+    setTimeout(() => { this.isPaymentModalOpen = true; }, 300); 
+},
 
                 processPayment() { 
                     this.paymentStep = 2; 

@@ -52,7 +52,7 @@
                                     <template x-for="(item, index) in cart" :key="index">
                                         <li class="flex py-2">
                                             <div class="h-16 w-16 md:h-20 md:w-20 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                                                <img :src="item.image" class="h-full w-full object-cover object-center">
+                                                <img :src="window.location.pathname.includes('/products/') ? (item.image.startsWith('../') ? item.image : '../' + item.image.replace(/^(\.\.\/)+/, '')) : item.image.replace(/^(\.\.\/)+/, '')" class="h-full w-full object-cover object-center">
                                             </div>
                                             <div class="ml-3 md:ml-4 flex flex-1 flex-col justify-center">
                                                 <div class="flex justify-between text-xs md:text-sm font-bold text-gray-900 dark:text-white">
@@ -133,7 +133,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 2. MODAL FORM DATA PELANGGAN               -->
+    <!-- 2. MODAL FORM DATA PELANGGAN (TERPADU)     -->
     <!-- ========================================== -->
     <div class="relative" style="z-index: 55;" aria-labelledby="form-title" role="dialog" aria-modal="true">
         <div x-cloak x-show="isCheckoutFormOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-md transition-opacity" @click="isCheckoutFormOpen = false"></div>
@@ -153,16 +153,16 @@
 
                     <div class="px-6 py-6 space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Lengkap</label>
-                            <input type="text" x-model="customerData.name" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Masukkan nama penerima">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Lengkap <span class="text-red-500">*</span></label>
+                            <input type="text" x-model="customerData.name" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Masukkan nama penerima">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nomor Telepon / WA</label>
-                            <input type="tel" x-model="customerData.phone" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Contoh: 08123456789">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nomor Telepon / WA <span class="text-red-500">*</span></label>
+                            <input type="tel" x-model="customerData.phone" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="Contoh: 08123456789">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat Lengkap</label>
-                            <textarea x-model="customerData.address" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition resize-none" placeholder="Nama Jalan, RT/RW, Kelurahan, Kecamatan, Kota"></textarea>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat Lengkap <span class="text-red-500">*</span></label>
+                            <textarea x-model="customerData.address" required rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition resize-none" placeholder="Nama Jalan, RT/RW, Kelurahan, Kecamatan, Kota"></textarea>
                         </div>
 
                         <!-- Custom reCAPTCHA -->
@@ -180,8 +180,8 @@
                             </div>
                         </div>
 
-                        <button type="button" @click="proceedToPayment()" 
-                                :disabled="!customerData.name || !customerData.phone || !customerData.address || !isNotRobot" 
+                        <button @click="proceedToPayment()" 
+                                :disabled="!customerData.name || !customerData.name.trim() || !customerData.phone || !customerData.phone.trim() || !customerData.address || !customerData.address.trim() || !isNotRobot || !isValidPhone(customerData.phone)" 
                                 class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
                             Lanjut ke Pembayaran
                         </button>
@@ -262,16 +262,32 @@
                         <p class="text-sm md:text-base text-gray-500 dark:text-gray-400">Sistem sedang memverifikasi keamanan (Secure Payment).</p>
                     </div>
 
-                    <div x-cloak x-show="paymentStep === 3" class="px-6 py-12 md:py-16 text-center">
+                    <div x-cloak x-show="paymentStep === 3" class="px-6 py-10 md:py-14 text-center">
                         <div class="mx-auto flex items-center justify-center h-16 w-16 md:h-20 md:w-20 rounded-full bg-green-100 dark:bg-green-900/50 mb-4 md:mb-6">
                             <svg class="h-8 w-8 md:h-10 md:w-10 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         </div>
                         <h3 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3">Pembayaran Berhasil!</h3>
-                        <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-2">Terima kasih atas pesanan Anda.</p>
-<p class="text-sm md:text-base text-brand-600 dark:text-brand-400 font-bold mb-6 md:mb-8">Nomor PO: <span x-text="invoiceNumber"></span></p>                        
-                        <button type="button" @click="finishPayment()" class="w-full bg-brand-600 text-white rounded-xl py-3 md:py-4 font-bold text-sm md:text-base hover:bg-brand-700 transition shadow-lg">
-                            Selesai & Lacak Pesanan
-                        </button>
+                        <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-4">Terima kasih atas pesanan Anda.</p>
+                        
+                        <!-- Nomor Invoice dengan Kotak Salin -->
+                        <div class="inline-flex items-center gap-2 bg-gray-100 dark:bg-slate-900 px-4 py-2 rounded-xl mb-6 border border-gray-200 dark:border-slate-700">
+                            <span class="text-xs md:text-sm text-gray-500 dark:text-gray-400 font-medium">Nomor PO:</span>
+                            <span class="text-sm md:text-base font-extrabold text-brand-600 dark:text-brand-400 select-all" x-text="invoiceNumber"></span>
+                        </div>
+
+                        <!-- Tombol Aksi -->
+                        <div class="space-y-3">
+                            <!-- Tombol Lacak Pesanan & Salin -->
+                            <button type="button" @click="trackOrderAndCopy()" class="w-full bg-brand-600 text-white rounded-xl py-3.5 font-bold text-sm md:text-base hover:bg-brand-700 transition shadow-lg flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 002 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span x-text="copiedNotice ? 'Nomor Invoice Disalin!' : 'Salin Invoice & Lacak Pesanan'"></span>
+                            </button>
+
+                            <!-- Tombol Kembali / Selesai -->
+                            <button type="button" @click="finishPayment()" class="w-full bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 rounded-xl py-3 font-semibold text-sm md:text-base hover:bg-gray-200 dark:hover:bg-slate-600 transition">
+                                Kembali
+                            </button>
+                        </div>
                     </div>
 
                 </div>

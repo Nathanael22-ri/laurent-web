@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth" x-data="hardwareStore()" :class="{ 'dark': isDark }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syarat & Ketentuan | Laurent Hardware</title>
+
+    <!-- Script Deteksi Dark Mode Instan -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'], },
+                    colors: {
+                        brand: { 50: '#f3f6fc', 100: '#e6edf8', 400: '#6484c4', 500: '#4a6eb3', 600: '#344f96', 700: '#2a407a', 900: '#1c294d' },
+                        zendit: { 500: '#002060', 600: '#001a4d' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+        .dark .glass { background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="font-sans text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-slate-900 overflow-x-hidden transition-colors duration-300" :class="{ 'overflow-hidden': isCartOpen || isPaymentModalOpen || isCheckoutFormOpen }">
+
+    <!-- Navbar Placeholder -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- HEADER / HERO -->
+    <section class="pt-36 pb-12 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" data-aos="fade-up">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-brand-50 dark:bg-slate-800 text-brand-600 dark:text-brand-400 font-bold text-xs uppercase tracking-widest mb-4">
+                Panduan Layanan & Transaksi
+            </span>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
+                Syarat & Ketentuan
+            </h1>
+            <p class="mt-4 text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                Harap membaca syarat dan ketentuan berikut dengan cermat sebelum Anda melakukan pemesanan produk atau menggunakan layanan Laurent Hardware.
+            </p>
+            <p class="mt-2 text-xs text-gray-400 dark:text-gray-500 font-medium">
+                Terakhir diperbarui: 21 Oktober 2026
+            </p>
+        </div>
+    </section>
+
+    <!-- CONTENT BODY -->
+    <section class="py-12 md:py-16 bg-gray-50 dark:bg-slate-900 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-10 md:p-12 shadow-xl border border-gray-100 dark:border-slate-700 space-y-10" data-aos="fade-up">
+                
+                <!-- Ringkasan Kesepakatan -->
+                <div class="p-5 sm:p-6 rounded-2xl bg-brand-50 dark:bg-slate-900/60 border border-brand-100 dark:border-slate-700 flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Persetujuan Pengguna</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                            Dengan mengunggah produk ke keranjang belanja, menyelesaikan pembayaran melalui sistem checkout, atau memesan via WhatsApp, Anda dianggap telah membaca, memahami, dan menyetujui seluruh isi Syarat dan Ketentuan ini.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Bab 1 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">1.</span> Pemesanan & Ketersediaan Produk
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Seluruh pemesanan barang yang dilakukan di platform kami tunduk pada syarat-syarat berikut:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li>Semua pesanan tergantung pada ketersediaan stok barang di gudang utama kami.</li>
+                        <li>Kami berhak memperbarui harga, deskripsi, atau spesifikasi teknis produk sewaktu-waktu tanpa pemberitahuan sebelumnya.</li>
+                        <li>Apabila terjadi kesalahan ketik atau sistem pada penetapan harga produk, Laurent Hardware berhak membatalkan pesanan yang terkait dan mengembalikan dana penuh kepada pembeli.</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 2 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">2.</span> Ketentuan Pembayaran
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Kami menyediakan dua metode checkout resmi untuk kemudahan Anda:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li><strong>Pembayaran Instan via Zendit:</strong> Mendukung metode BCA Virtual Account dan QRIS (GoPay, OVO, Dana, LinkAja). Transaksi diproses secara otomatis dalam waktu nyata (*real-time*).</li>
+                        <li><strong>Checkout WhatsApp:</strong> Pesanan dikonfirmasi secara manual melalui tim sales resmi kami di nomor <a href="https://wa.me/6281212382003" class="text-brand-600 dark:text-brand-400 font-semibold hover:underline">+62 812-1238-2003</a>.</li>
+                        <li>Harga akhir yang tertera pada invoice sudah mencakup biaya layanan transaksi, dan dapat ditambahkan opsi PPN 11% serta estimasi ongkos kirim sesuai pilihan pengguna.</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 3 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">3.</span> Pengiriman & Penerimaan Barang
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Proses pengiriman produk hardware dan sistem kunci dilaksanakan berdasarkan ketentuan berikut:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li>Pesanan yang terkonfirmasi sebelum pukul 15.00 WIB akan diproses dan dikirim pada hari kerja yang sama.</li>
+                        <li>Estimasi waktu pengiriman bervariasi sesuai dengan lokasi tujuan dan layanan ekspedisi yang dipilih.</li>
+                        <li>Pelanggan wajib memastikan data nama penerima, nomor HP/WhatsApp, dan alamat pengiriman sudah ditulis secara lengkap dan benar. Risik kerugian akibat kesalahan penulisan alamat oleh pelanggan berada di luar tanggung jawab Laurent Hardware.</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 4 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">4.</span> Garansi Produk & Layanan Purna Jual
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Seluruh produk kategori *Smart Lock*, *Bio-Lock*, *Door Closer*, dan *CCTV Camera* dari Laurent Hardware dilengkapi dengan garansi resmi:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li>Garansi pabrik berlaku mulai dari 1 (satu) hingga 3 (tiga) tahun tergantung tipe produk yang dibeli.</li>
+                        <li>Garansi mencakup kerusakan modul elektronik, kegagalan fungsi sensor biometrik, serta cacat produksi pada komponen hardware mekanis.</li>
+                        <li>Garansi <strong>TIDAK BERLAKU</strong> untuk kerusakan akibat kesalahan kelistrikan (korsleting/lonjakan voltase), force majeure (bencana alam/kebakaran), atau kerusakan fisik akibat kesalahan pemasangan mandiri yang tidak sesuai dengan instruksi manual.</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 5 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">5.</span> Kebijakan Pengembalian & Penukaran (Return Policy)
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Syarat dan tata cara pengajuan retur barang:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li>Pengajuan retur barang wajib dilakukan maksimal dalam <strong>2x24 jam</strong> setelah paket diterima berdasarkan status resi pengiriman.</li>
+                        <li>Pembeli <strong>WAJIB menyertakan video unboxing utuh</strong> (tanpa dipotong/di-edit) mulai dari kemasan segel luar hingga pengecekan fungsi produk.</li>
+                        <li>Penukaran hanya berlaku untuk item yang rusak saat diterima atau ketidaksesuaian barang yang dikirim oleh tim kami.</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 6 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">6.</span> Hak Kekayaan Intelektual
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Seluruh logo, merek dagang "Laurent Hardware", desain antarmuka web, foto produk, katalog visual, dan teks deskripsi yang ditampilkan di platform ini adalah hak cipta milik Laurent Hardware. Dilarang keras menyalin, mendistribusikan ulang, atau menggunakan materi visual kami untuk kepentingan komersial tanpa izin tertulis dari manajemen kami.
+                    </p>
+                </div>
+
+                <!-- Bab 7 -->
+                <div class="space-y-3 pt-4 border-t border-gray-100 dark:border-slate-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Pertanyaan & Bantuan Transaksi</h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Jika Anda memiliki kendala mengenai transaksi, status pengiriman, atau klaim garansi, hubungi Customer Care kami:
+                    </p>
+                    <div class="mt-3 p-4 rounded-xl bg-gray-50 dark:bg-slate-900/40 text-sm space-y-1.5 font-medium text-gray-700 dark:text-gray-300">
+                        <p><strong>Laurent Hardware Customer Support</strong></p>
+                        <p>WhatsApp Helpdesk: <a href="https://wa.me/6281212382003" class="text-brand-600 dark:text-brand-400 hover:underline">+62 812-1238-2003</a></p>
+                        <p>Email: <a href="mailto:support@laurenthardware.com" class="text-brand-600 dark:text-brand-400 hover:underline">support@laurenthardware.com</a></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Cart Placeholder -->
+    <div id="cart-placeholder"></div>
+
+    <!-- Script Library AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Alpine.js Store Configuration -->
+    <script>
+        AOS.init({ once: true, offset: 50, duration: 800, easing: 'ease-out-cubic' });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('hardwareStore', () => ({
+                isDark: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
+                isCartOpen: false,
+                isMobileMenuOpen: false,
+                isCheckoutFormOpen: false,
+                isPaymentModalOpen: false,
+                copiedNotice: false,
+
+                // State Keranjang & Checkout
+                cart: JSON.parse(localStorage.getItem('cart')) || [],
+                includePPN: false,
+                isDelivery: false,
+                appFee: 2500,
+                deliveryFee: 50000,
+                paymentStep: 1,
+                selectedPayment: null,
+                invoiceNumber: '',
+                customerData: { name: '', phone: '', address: '' },
+                isNotRobot: false,
+
+                init() {
+                    this.$watch('isDark', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); });
+                    this.$watch('cart', val => { localStorage.setItem('cart', JSON.stringify(val)); }, { deep: true });
+                },
+
+                trackOrderAndCopy() {
+    if (this.invoiceNumber) {
+        // Menyalin nomor invoice ke clipboard sistem
+        navigator.clipboard.writeText(this.invoiceNumber).then(() => {
+            this.copiedNotice = true;
+
+            // Jeda sebentar untuk menampilkan teks sukses, lalu arahkan ke halaman track
+            setTimeout(() => {
+                this.copiedNotice = false;
+                this.finishPayment(); // Reset keranjang & tutup modal
+
+                // Sesuaikan path jika berada di subfolder /products/
+                const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+                window.location.href = trackUrl;
+            }, 800);
+        }).catch(err => {
+            console.error('Gagal menyalin ke clipboard:', err);
+            // Fallback langsung pindah halaman jika izin diblokir browser
+            const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+            window.location.href = trackUrl;
+        });
+    }
+},
+
+                // Helper & Logic Cart
+                toggleTheme() { this.isDark = !this.isDark; },
+                updateQty(id, change) {
+                    const item = this.cart.find(i => i.id === id);
+                    if (item) {
+                        item.qty += change;
+                        if (item.qty <= 0) this.removeFromCart(id);
+                    }
+                },
+                removeFromCart(id) { this.cart = this.cart.filter(item => item.id !== id); },
+                get totalItems() { return this.cart.reduce((total, item) => total + item.qty, 0); },
+                get cartTotal() { return this.cart.reduce((total, item) => total + (item.price * item.qty), 0); },
+                get ppnAmount() { return this.includePPN ? (this.cartTotal * 0.11) : 0; },
+                get activeDeliveryFee() { return this.isDelivery ? this.deliveryFee : 0; },
+                get grandTotal() { 
+                    if(this.cart.length === 0) return 0;
+                    return this.cartTotal + this.ppnAmount + this.appFee + this.activeDeliveryFee; 
+                },
+                formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); },
+
+                // Form & Checkout Flow
+                openCheckoutForm() {
+                    this.isCartOpen = false;
+                    setTimeout(() => { this.isCheckoutFormOpen = true; }, 300);
+                },
+                isValidPhone(phone) {
+                    if (!phone) return false;
+                    const cleanPhone = phone.replace(/[\s-]/g, '');
+                    return /^(?:\+62|62|08)[0-9]{8,13}$/.test(cleanPhone);
+                },
+                proceedToPayment() {
+                    this.customerData.name = this.customerData.name ? this.customerData.name.trim() : '';
+                    this.customerData.phone = this.customerData.phone ? this.customerData.phone.trim() : '';
+                    this.customerData.address = this.customerData.address ? this.customerData.address.trim() : '';
+
+                    if (!this.customerData.name || !this.customerData.phone || !this.customerData.address) {
+                        alert('Mohon lengkapi semua data pengiriman dengan benar.');
+                        return;
+                    }
+                    if (!this.isValidPhone(this.customerData.phone)) {
+                        alert('Format nomor WhatsApp / Telepon tidak valid.');
+                        return;
+                    }
+                    if (!this.isNotRobot) {
+                        alert('Mohon verifikasi centang "Saya bukan robot".');
+                        return;
+                    }
+                    this.isCheckoutFormOpen = false;
+                    this.paymentStep = 1;
+                    this.selectedPayment = null;
+                    setTimeout(() => { this.isPaymentModalOpen = true; }, 300);
+                },
+                checkoutWA() {
+                    let textMsg = `*Halo Laurent Hardware*\nSaya ingin memproses pesanan:\n\n`;
+                    textMsg += `*Data Pengiriman:*\nNama: ${this.customerData.name}\nNo. WA: ${this.customerData.phone}\nAlamat: ${this.customerData.address}\n\n`;
+                    textMsg += `*Rincian Barang:*\n`;
+                    this.cart.forEach((item, index) => { textMsg += `${index + 1}. ${item.name}\n   Qty: ${item.qty} x ${this.formatRupiah(item.price)}\n`; });
+                    textMsg += `\n*Subtotal: ${this.formatRupiah(this.cartTotal)}*`;
+                    textMsg += `\n*Biaya Aplikasi: ${this.formatRupiah(this.appFee)}*`;
+                    if (this.includePPN) textMsg += `\n*PPN (11%): ${this.formatRupiah(this.ppnAmount)}*`;
+                    if (this.isDelivery) textMsg += `\n*Estimasi Ongkir: ${this.formatRupiah(this.deliveryFee)}*`;
+                    textMsg += `\n\n*Total Tagihan: ${this.formatRupiah(this.grandTotal)}*`;
+                    
+                    window.open(`https://wa.me/6281212382003?text=${encodeURIComponent(textMsg)}`, '_blank');
+                    this.finishPayment();
+                },
+                finishPayment() {
+                    this.isPaymentModalOpen = false;
+                    this.cart = [];
+                    this.includePPN = false;
+                    this.isDelivery = false;
+                    this.customerData = { name: '', phone: '', address: '' };
+                    this.isNotRobot = false;
+                }
+            }));
+        });
+    </script>
+
+    <!-- Load Component Dinamis -->
+    <script>
+        const noCache = '?v=' + new Date().getTime();
+
+        // Navbar
+        fetch('navbar/navbar.html' + noCache)
+            .then(res => res.text())
+            .then(data => { document.getElementById('navbar-placeholder').innerHTML = data; });
+
+        // Footer
+        fetch('footer/footer.html' + noCache)
+            .then(res => res.text())
+            .then(data => { document.getElementById('footer-placeholder').innerHTML = data; });
+
+        // Cart
+        fetch('cart/cart.html' + noCache)
+            .then(res => res.text())
+            .then(data => { document.getElementById('cart-placeholder').innerHTML = data; });
+    </script>
+</body>
+</html>

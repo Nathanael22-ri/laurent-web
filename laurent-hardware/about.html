@@ -287,6 +287,8 @@
         </div>
     </section>
 
+    <div id="cart-placeholder"></div>
+
     <!-- FOOTER -->
     <!-- Footer Dinamis -->
     <div id="footer-placeholder"></div>
@@ -304,7 +306,7 @@
                 isDark: document.documentElement.classList.contains('dark'),
                 isCartOpen: false,
                 isMobileMenuOpen: false,
-                cart: [],
+                cart: JSON.parse(localStorage.getItem('cart')) || [],
                 includePPN: false,
                 isDelivery: false,
                 appFee: 2500,
@@ -312,6 +314,7 @@
                 isPaymentModalOpen: false,
                 paymentStep: 1, 
                 selectedPayment: null,
+                copiedNotice: false,
                 
                 products: [
                     { id: 1, name: 'Laurent Bio-Lock Series Pro', desc: 'Handle pintu pintar dengan sensor sidik jari 3D, NFC, dan WiFi.', price: 2499000, image: 'https://images.unsplash.com/photo-1628151015968-3a4429e9ef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', badge: 'Hot Item' },
@@ -320,8 +323,38 @@
                 ],
 
                 init() {
-                    this.$watch('isDark', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); });
-                },
+    this.$watch('isDark', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); });
+    
+    // Tambahkan watcher ini agar keranjang tersinkronisasi otomatis
+    this.$watch('cart', val => {
+        localStorage.setItem('cart', JSON.stringify(val));
+    }, { deep: true });
+},
+
+trackOrderAndCopy() {
+    if (this.invoiceNumber) {
+        // Menyalin nomor invoice ke clipboard sistem
+        navigator.clipboard.writeText(this.invoiceNumber).then(() => {
+            this.copiedNotice = true;
+
+            // Jeda sebentar untuk menampilkan teks sukses, lalu arahkan ke halaman track
+            setTimeout(() => {
+                this.copiedNotice = false;
+                this.finishPayment(); // Reset keranjang & tutup modal
+
+                // Sesuaikan path jika berada di subfolder /products/
+                const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+                window.location.href = trackUrl;
+            }, 800);
+        }).catch(err => {
+            console.error('Gagal menyalin ke clipboard:', err);
+            // Fallback langsung pindah halaman jika izin diblokir browser
+            const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+            window.location.href = trackUrl;
+        });
+    }
+},
+
                 toggleTheme() { 
                     this.isDark = !this.isDark; 
                     if(this.isDark) {
@@ -406,6 +439,16 @@
             })
             .then(data => { document.getElementById('footer-placeholder').innerHTML = data; })
             .catch(error => console.error('Gagal memuat footer:', error));
+
+        fetch('cart/cart.html')
+            .then(response => {
+                if (!response.ok) throw new Error('Cart gagal dimuat');
+                return response.text();
+            })
+            .then(data => { 
+                document.getElementById('cart-placeholder').innerHTML = data;
+            })
+            .catch(error => console.error('Gagal memuat cart:', error)); 
 
     </script>
 </body>

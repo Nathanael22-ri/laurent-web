@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth" x-data="hardwareStore()" :class="{ 'dark': isDark }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kebijakan Privasi | Laurent Hardware</title>
+
+    <!-- Script Deteksi Dark Mode Instan -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'], },
+                    colors: {
+                        brand: { 50: '#f3f6fc', 100: '#e6edf8', 400: '#6484c4', 500: '#4a6eb3', 600: '#344f96', 700: '#2a407a', 900: '#1c294d' },
+                        zendit: { 500: '#002060', 600: '#001a4d' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+        .dark .glass { background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="font-sans text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-slate-900 overflow-x-hidden transition-colors duration-300" :class="{ 'overflow-hidden': isCartOpen || isPaymentModalOpen || isCheckoutFormOpen }">
+
+    <!-- Navbar Placeholder -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- HEADER / HERO -->
+    <section class="pt-36 pb-12 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" data-aos="fade-up">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-brand-50 dark:bg-slate-800 text-brand-600 dark:text-brand-400 font-bold text-xs uppercase tracking-widest mb-4">
+                Komitmen & Perlindungan Data
+            </span>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
+                Kebijakan Privasi
+            </h1>
+            <p class="mt-4 text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                Kepercayaan Anda adalah prioritas utama kami. Halaman ini menjelaskan bagaimana Laurent Hardware mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda secara transparan.
+            </p>
+            <p class="mt-2 text-xs text-gray-400 dark:text-gray-500 font-medium">
+                Terakhir diperbarui: 21 Oktober 2026
+            </p>
+        </div>
+    </section>
+
+    <!-- CONTENT BODY -->
+    <section class="py-12 md:py-16 bg-gray-50 dark:bg-slate-900 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-10 md:p-12 shadow-xl border border-gray-100 dark:border-slate-700 space-y-10" data-aos="fade-up">
+                
+                <!-- Ringkasan Komitmen -->
+                <div class="p-5 sm:p-6 rounded-2xl bg-brand-50 dark:bg-slate-900/60 border border-brand-100 dark:border-slate-700 flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Prinsip Privasi Kami</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                            Kami tidak pernah menjual, menyewakan, atau memperjualbelikan data pribadi Anda kepada pihak ketiga mana pun. Semua data yang kami kumpulkan semata-mata digunakan untuk pemrosesan pesanan, pengiriman produk, serta peningkatan layanan transaksi Anda.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Bab 1 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">1.</span> Informasi yang Kami Kumpulkan
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Saat Anda bertransaksi atau berinteraksi melalui platform Laurent Hardware, kami dapat mengumpulkan informasi pribadi yang Anda berikan secara langsung, meliputi:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li><strong>Identitas Diri:</strong> Nama lengkap penerima pesanan.</li>
+                        <li><strong>Informasi Kontak:</strong> Nomor WhatsApp atau Telepon aktif yang digunakan untuk konfirmasi pesanan dan koordinasi kurir pengiriman.</li>
+                        <li><strong>Alamat Pengiriman:</strong> Alamat domisili/lokasi proyek lengkap (Jalan, RT/RW, Kelurahan, Kecamatan, Kota/Kabupaten, Kode Pos) untuk pengiriman fisik barang.</li>
+                        <li><strong>Data Transaksi:</strong> Rincian item produk yang Anda beli, jumlah pembayaran, dan riwayat pesanan (PO Number).</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 2 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">2.</span> Penggunaan Informasi Anda
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Data yang kami kumpulkan diproses terbatas untuk tujuan bisnis yang sah, meliputi:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li>Memproses, memverifikasi, dan menyelesaikan pesanan produk atau pengajuan penawaran harga Anda.</li>
+                        <li>Mengatur pengiriman ekspedisi dan koordinasi tim teknisi pemasangan kunci pintar/hardware.</li>
+                        <li>Mengirimkan konfirmasi tagihan atau bukti pembayaran transaksi (Invoicing).</li>
+                        <li>Menghubungi Anda terkait layanan purna jual (*after-sales service*), klaim garansi produk, atau kendala teknis.</li>
+                        <li>Meningkatkan kualitas tampilan dan kenyamanan navigasi situs web kami.</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 3 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">3.</span> Penyimpanan Lintas Sesi (Local Storage & Cookies)
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Untuk memberikan pengalaman belanja tanpa hambatan, situs web kami memanfaatkan fitur penyimpanan lokal peramban (*Browser LocalStorage*). 
+                    </p>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Fitur ini digunakan untuk menyimpan item dalam <strong>Keranjang Belanja</strong> serta preferensi <strong>Tema (Dark Mode / Light Mode)</strong> Anda secara lokal di perangkat Anda, sehingga data keranjang tidak hilang saat Anda berpindah antar halaman (*index*, *products*, *catalogue*, atau *about*). Data dalam *LocalStorage* sepenuhnya berada di bawah kendali perangkat Anda dan dapat dihapus kapan saja melalui pembersihan *cache* peramban.
+                    </p>
+                </div>
+
+                <!-- Bab 4 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">4.</span> Keamanan & Pengolahan Pembayaran
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Laurent Hardware mengintegrasikan gerbang pembayaran (*Payment Gateway*) resmi dan terenkripsi seperti **Zendit** untuk memproses transaksi secara aman. 
+                    </p>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Seluruh detail transaksi pembayaran finansial (seperti Virtual Account atau QRIS) diproses langsung melalui infrastruktur yang tersertifikasi standar keamanan PCI-DSS. Laurent Hardware tidak menyimpan informasi sensitif perbankan maupun nomor kartu kredensial Anda di server pribadi kami.
+                    </p>
+                </div>
+
+                <!-- Bab 5 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">5.</span> Pembagian Data ke Pihak Ketiga
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Informasi pribadi Anda hanya dipublikasikan kepada pihak ketiga tepercaya jika secara teknis diperlukan untuk operasional transaksi, antara lain:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li><strong>Mitra Kurir & Logistik:</strong> Untuk keperluan pengiriman fisik barang ke lokasi tujuan Anda.</li>
+                        <li><strong>Penyedia Layanan Pembayaran:</strong> Untuk verifikasi status pembayaran otomatis.</li>
+                        <li><strong>Otoritas Hukum:</strong> Jika diwajibkan oleh peraturan perundang-undangan Indonesia yang berlaku.</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 6 -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-700 pb-3">
+                        <span class="text-brand-600 dark:text-brand-400">6.</span> Hak-Hak Pengguna
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Sesuai peraturan Perlindungan Data Pribadi (PDP) yang berlaku, Anda memiliki hak penuh untuk:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                        <li>Meminta pembaruan atau koreksi atas data pribadi Anda yang kurang tepat.</li>
+                        <li>Meminta penghapusan data pribadi Anda dari sistem catatan riwayat transaksi kami setelah pesanan selesai dan masa garansi berakhir.</li>
+                        <li>Menghubungi layanan pelanggan kami untuk klarifikasi penggunaan data pribadi Anda.</li>
+                    </ul>
+                </div>
+
+                <!-- Bab 7 -->
+                <div class="space-y-3 pt-4 border-t border-gray-100 dark:border-slate-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hubungi Kami</h2>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Jika Anda memiliki pertanyaan, kendala, atau permintaan khusus terkait Kebijakan Privasi ini, silakan hubungi tim tim kami melalui:
+                    </p>
+                    <div class="mt-3 p-4 rounded-xl bg-gray-50 dark:bg-slate-900/40 text-sm space-y-1.5 font-medium text-gray-700 dark:text-gray-300">
+                        <p><strong>Laurent Hardware Indonesia</strong></p>
+                        <p>WhatsApp Support: <a href="https://wa.me/6281212382003" class="text-brand-600 dark:text-brand-400 hover:underline">+62 812-1238-2003</a></p>
+                        <p>Email: <a href="mailto:support@laurenthardware.com" class="text-brand-600 dark:text-brand-400 hover:underline">support@laurenthardware.com</a></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Cart Placeholder -->
+    <div id="cart-placeholder"></div>
+
+    <!-- Script Library AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Alpine.js Store Configuration -->
+    <script>
+        AOS.init({ once: true, offset: 50, duration: 800, easing: 'ease-out-cubic' });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('hardwareStore', () => ({
+                isDark: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
+                isCartOpen: false,
+                isMobileMenuOpen: false,
+                isCheckoutFormOpen: false,
+                isPaymentModalOpen: false,
+                copiedNotice: false,
+
+                // State Keranjang & Checkout
+                cart: JSON.parse(localStorage.getItem('cart')) || [],
+                includePPN: false,
+                isDelivery: false,
+                appFee: 2500,
+                deliveryFee: 50000,
+                paymentStep: 1,
+                selectedPayment: null,
+                invoiceNumber: '',
+                customerData: { name: '', phone: '', address: '' },
+                isNotRobot: false,
+
+                init() {
+                    this.$watch('isDark', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); });
+                    this.$watch('cart', val => { localStorage.setItem('cart', JSON.stringify(val)); }, { deep: true });
+                },
+
+                trackOrderAndCopy() {
+    if (this.invoiceNumber) {
+        // Menyalin nomor invoice ke clipboard sistem
+        navigator.clipboard.writeText(this.invoiceNumber).then(() => {
+            this.copiedNotice = true;
+
+            // Jeda sebentar untuk menampilkan teks sukses, lalu arahkan ke halaman track
+            setTimeout(() => {
+                this.copiedNotice = false;
+                this.finishPayment(); // Reset keranjang & tutup modal
+
+                // Sesuaikan path jika berada di subfolder /products/
+                const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+                window.location.href = trackUrl;
+            }, 800);
+        }).catch(err => {
+            console.error('Gagal menyalin ke clipboard:', err);
+            // Fallback langsung pindah halaman jika izin diblokir browser
+            const trackUrl = window.location.pathname.includes('/products/') ? '../track.html' : 'track.html';
+            window.location.href = trackUrl;
+        });
+    }
+},
+
+                // Helper & Logic Cart
+                toggleTheme() { this.isDark = !this.isDark; },
+                updateQty(id, change) {
+                    const item = this.cart.find(i => i.id === id);
+                    if (item) {
+                        item.qty += change;
+                        if (item.qty <= 0) this.removeFromCart(id);
+                    }
+                },
+                removeFromCart(id) { this.cart = this.cart.filter(item => item.id !== id); },
+                get totalItems() { return this.cart.reduce((total, item) => total + item.qty, 0); },
+                get cartTotal() { return this.cart.reduce((total, item) => total + (item.price * item.qty), 0); },
+                get ppnAmount() { return this.includePPN ? (this.cartTotal * 0.11) : 0; },
+                get activeDeliveryFee() { return this.isDelivery ? this.deliveryFee : 0; },
+                get grandTotal() { 
+                    if(this.cart.length === 0) return 0;
+                    return this.cartTotal + this.ppnAmount + this.appFee + this.activeDeliveryFee; 
+                },
+                formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); },
+
+                // Form & Checkout Flow
+                openCheckoutForm() {
+                    this.isCartOpen = false;
+                    setTimeout(() => { this.isCheckoutFormOpen = true; }, 300);
+                },
+                isValidPhone(phone) {
+                    if (!phone) return false;
+                    const cleanPhone = phone.replace(/[\s-]/g, '');
+                    return /^(?:\+62|62|08)[0-9]{8,13}$/.test(cleanPhone);
+                },
+                proceedToPayment() {
+                    this.customerData.name = this.customerData.name ? this.customerData.name.trim() : '';
+                    this.customerData.phone = this.customerData.phone ? this.customerData.phone.trim() : '';
+                    this.customerData.address = this.customerData.address ? this.customerData.address.trim() : '';
+
+                    if (!this.customerData.name || !this.customerData.phone || !this.customerData.address) {
+                        alert('Mohon lengkapi semua data pengiriman dengan benar.');
+                        return;
+                    }
+                    if (!this.isValidPhone(this.customerData.phone)) {
+                        alert('Format nomor WhatsApp / Telepon tidak valid.');
+                        return;
+                    }
+                    if (!this.isNotRobot) {
+                        alert('Mohon verifikasi centang "Saya bukan robot".');
+                        return;
+                    }
+                    this.isCheckoutFormOpen = false;
+                    this.paymentStep = 1;
+                    this.selectedPayment = null;
+                    setTimeout(() => { this.isPaymentModalOpen = true; }, 300);
+                },
+                checkoutWA() {
+                    let textMsg = `*Halo Laurent Hardware*\nSaya ingin memproses pesanan:\n\n`;
+                    textMsg += `*Data Pengiriman:*\nNama: ${this.customerData.name}\nNo. WA: ${this.customerData.phone}\nAlamat: ${this.customerData.address}\n\n`;
+                    textMsg += `*Rincian Barang:*\n`;
+                    this.cart.forEach((item, index) => { textMsg += `${index + 1}. ${item.name}\n   Qty: ${item.qty} x ${this.formatRupiah(item.price)}\n`; });
+                    textMsg += `\n*Subtotal: ${this.formatRupiah(this.cartTotal)}*`;
+                    textMsg += `\n*Biaya Aplikasi: ${this.formatRupiah(this.appFee)}*`;
+                    if (this.includePPN) textMsg += `\n*PPN (11%): ${this.formatRupiah(this.ppnAmount)}*`;
+                    if (this.isDelivery) textMsg += `\n*Estimasi Ongkir: ${this.formatRupiah(this.deliveryFee)}*`;
+                    textMsg += `\n\n*Total Tagihan: ${this.formatRupiah(this.grandTotal)}*`;
+                    
+                    window.open(`https://wa.me/6281212382003?text=${encodeURIComponent(textMsg)}`, '_blank');
+                    this.finishPayment();
+                },
+                finishPayment() {
+                    this.isPaymentModalOpen = false;
+                    this.cart = [];
+                    this.includePPN = false;
+                    this.isDelivery = false;
+                    this.customerData = { name: '', phone: '', address: '' };
+                    this.isNotRobot = false;
+                }
+            }));
+        });
+    </script>
+
+    <!-- Load Component Dinamis -->
+    <script>
+        const noCache = '?v=' + new Date().getTime();
+
+        // Navbar
+        fetch('navbar/navbar.html' + noCache)
+            .then(res => res.text())
+            .then(data => { document.getElementById('navbar-placeholder').innerHTML = data; });
+
+        // Footer
+        fetch('footer/footer.html' + noCache)
+            .then(res => res.text())
+            .then(data => { document.getElementById('footer-placeholder').innerHTML = data; });
+
+        // Cart
+        fetch('cart/cart.html' + noCache)
+            .then(res => res.text())
+            .then(data => { document.getElementById('cart-placeholder').innerHTML = data; });
+    </script>
+</body>
+</html>
