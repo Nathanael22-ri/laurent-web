@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require_once '../db.php';
+require_once '../db.php'; //
 
 $invoice = isset($_GET['invoice']) ? trim($_GET['invoice']) : '';
 
@@ -25,7 +25,7 @@ try {
         FROM orders 
         WHERE invoice_number = :invoice
         LIMIT 1
-    ");
+    "); //
     
     $stmt->execute([':invoice' => $invoice]);
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -38,11 +38,14 @@ try {
         exit;
     }
 
-    // Mengubah status database menjadi keterangan status pelacakan
+    $status = $order['status'];
+
+    // Perbaikan logika: Status 'processing' berarti sudah melewati tahap bayar dan verifikasi
     $trackingSteps = [
-        'is_paid' => ($order['status'] === 'paid'),
-        'is_verified' => (!empty($order['verified_by'])),
-        'is_canceled' => ($order['status'] === 'canceled')
+        'is_paid' => ($status === 'paid' || $status === 'processing'),
+        'is_verified' => (!empty($order['verified_by']) || $status === 'paid' || $status === 'processing'),
+        'is_processing' => ($status === 'processing'),
+        'is_canceled' => ($status === 'canceled')
     ];
 
     echo json_encode([

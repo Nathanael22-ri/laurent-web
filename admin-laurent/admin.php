@@ -182,6 +182,13 @@
             currentTime: '',
             toasts: [],
             toastIdCounter: 0,
+
+            // --- TAMBAHKAN STATE ADMIN DINAMIS DI SINI ---
+    adminName: 'Super Admin',
+    adminEmail: 'admin@laurent.com',
+    get adminAvatar() {
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(this.adminName)}&background=22c55e&color=fff&bold=true`;
+    },
             
             // State Data Nyata
             stats: {

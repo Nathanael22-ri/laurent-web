@@ -2,36 +2,39 @@
 header('Content-Type: application/json');
 require_once '../db.php'; // Memanggil koneksi database
 
-// Cek apakah request berupa GET (Ambil Data) atau POST (Ubah Data)
 $method = $_SERVER['REQUEST_METHOD'];
 
 try {
     if ($method === 'GET') {
 
         // ==========================================
-        // FUNGSI BARU: MENGAMBIL RINCIAN ITEM
+        // FUNGSI: MENGAMBIL RINCIAN ITEM & GAMBAR
         // ==========================================
-        if (isset($_GET['action']) &&$_GET['action'] === 'get_items') {
-            $order_id =$_GET['order_id'];
+        if (isset($_GET['action']) && $_GET['action'] === 'get_items') {
+            $order_id = $_GET['order_id'];
             
-            // Asumsi tabel produk Anda bernama `products`
+            // Perbaikan: Hapus 'oi.image' karena kolom tersebut tidak ada di tabel orders_item
             $stmt = $pdo->prepare("
-                SELECT oi.qty, oi.price, p.name, p.image_url AS image
+                SELECT 
+                    oi.qty, 
+                    oi.price, 
+                    COALESCE(p.name, oi.product_name) AS name, 
+                    COALESCE(CONCAT('../laurent-hardware/', p.image_url), 'https://via.placeholder.com/150?text=No+Image') AS image
                 FROM orders_item oi
-                JOIN products p ON oi.product_id = p.id
+                LEFT JOIN products p ON oi.product_id = p.id
                 WHERE oi.order_id = :order_id
             ");
-            $stmt->execute([':order_id' =>$order_id]);
+            $stmt->execute([':order_id' => $order_id]);
             
             echo json_encode([
                 'status' => 'success', 
                 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)
             ]);
-            exit; // Hentikan eksekusi agar tidak lanjut ke bawah
+            exit;
         }
 
         // ==========================================
-        // FUNGSI 1: MENGAMBIL DATA (GET)
+        // FUNGSI 1: MENGAMBIL DATA UTAMA PESANAN (GET)
         // ==========================================
         $query = "
             SELECT 
@@ -60,7 +63,6 @@ try {
         
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Memastikan tipe data angka terbaca dengan benar oleh JavaScript
         foreach ($orders as &$order) {
             $order['total'] = (float) $order['total'];
             $order['grand_total'] = (float) $order['grand_total'];
@@ -78,12 +80,17 @@ try {
         // ==========================================
         $data = json_decode(file_get_contents("php://input"), true);
 
-        // Validasi input
         if (!isset($data['id']) || !isset($data['status'])) {
-            die(json_encode(['status' => 'error', 'message' => 'Data id atau status tidak lengkap.']));
+            echo json_encode(['status' => 'error', 'message' => 'Data id atau status tidak lengkap.']);
+            exit;
         }
 
-        // Jalankan query update
+        $allowedStatuses = ['pending', 'paid', 'processing', 'canceled'];
+        if (!in_array($data['status'], $allowedStatuses)) {
+            echo json_encode(['status' => 'error', 'message' => 'Status pesanan tidak valid.']);
+            exit;
+        }
+
         $stmt = $pdo->prepare("UPDATE orders SET status = :status WHERE id = :id");
         $stmt->execute([
             ':status' => $data['status'],
@@ -91,10 +98,6 @@ try {
         ]);
 
         echo json_encode(['status' => 'success', 'message' => 'Status pesanan berhasil diperbarui.']);
-        
-    } else {
-        // Jika metode bukan GET atau POST
-        echo json_encode(['status' => 'error', 'message' => 'Metode HTTP tidak didukung.']);
     }
 
 } catch (PDOException $e) {

@@ -57,18 +57,19 @@
     </div>
 
     <!-- User Profile Footer -->
-    <div class="p-4 border-t border-slate-800 shrink-0">
-        <div class="bg-slate-800 rounded-2xl p-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="https://ui-avatars.com/api/?name=Admin+Laurent&background=22c55e&color=fff&bold=true" alt="User" class="w-10 h-10 rounded-full border border-slate-600">
-                <div class="hidden lg:block overflow-hidden">
-                    <p class="text-sm font-bold text-white truncate">Super Admin</p>
-                    <p class="text-xs text-slate-400 truncate">admin@laurent.com</p>
-                </div>
+<div class="p-4 border-t border-slate-800 shrink-0">
+    <div class="bg-slate-800 rounded-2xl p-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <!-- Avatar dinamis berdasarkan nama admin -->
+            <img :src="adminAvatar" alt="User" class="w-10 h-10 rounded-full border border-slate-600">
+            <div class="hidden lg:block overflow-hidden">
+                <p class="text-sm font-bold text-white truncate" x-text="adminName">Super Admin</p>
+                <p class="text-xs text-slate-400 truncate" x-text="adminEmail">admin@laurent.com</p>
             </div>
-            <button @click="doLogout()" class="p-2 text-red-400 hover:text-white hover:bg-red-500 rounded-lg transition-colors focus:outline-none">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            </button>
         </div>
+        <button @click="doLogout()" class="p-2 text-red-400 hover:text-white hover:bg-red-500 rounded-lg transition-colors focus:outline-none" title="Keluar">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        </button>
     </div>
+</div>
 </aside>

@@ -27,22 +27,11 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'], },
                     colors: {
                         brand: {
-                            50: '#f3f6fc',
-                            100: '#e6edf8',
-                            400: '#6484c4',
-                            500: '#4a6eb3',
-                            600: '#344f96',
-                            700: '#2a407a',
-                            900: '#1c294d',
-                        },
-                        zendit: {
-                            500: '#002060',
-                            600: '#001a4d'
+                            50: '#f3f6fc', 100: '#e6edf8', 400: '#6484c4',
+                            500: '#4a6eb3', 600: '#344f96', 700: '#2a407a', 900: '#1c294d',
                         }
                     }
                 }
@@ -118,7 +107,7 @@
                 <!-- Pesanan Dibatalkan -->
                 <template x-if="order.is_canceled">
                     <div class="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl text-center font-medium border border-red-200 dark:border-red-800">
-                        ❌ Pesanan ini telah dibatalkan.
+                        ❌ Pesanan ini telah dibatalkan oleh admin.
                     </div>
                 </template>
 
@@ -131,7 +120,7 @@
                             
                             <!-- Step 1: Pesanan Dibuat -->
                             <div class="relative flex items-start">
-                                <div class="absolute -left-8 p-1 rounded-full bg-green-500 text-white">
+                                <div class="absolute -left-8 p-1 rounded-full bg-green-500 text-white text-xs w-6 h-6 flex items-center justify-center">
                                     ✓
                                 </div>
                                 <div>
@@ -140,10 +129,10 @@
                                 </div>
                             </div>
 
-                            <!-- Step 2: Pembayaran (Paid) -->
+                            <!-- Step 2: Pembayaran Terkonfirmasi -->
                             <div class="relative flex items-start">
                                 <div 
-                                    class="absolute -left-8 p-1 rounded-full text-white"
+                                    class="absolute -left-8 p-1 rounded-full text-white text-xs w-6 h-6 flex items-center justify-center"
                                     :class="order.is_paid ? 'bg-green-500' : 'bg-gray-300 dark:bg-slate-700'"
                                 >
                                     <span x-text="order.is_paid ? '✓' : '•'"></span>
@@ -154,31 +143,17 @@
                                 </div>
                             </div>
 
-                            <!-- Step 3: Verifikasi / ACC (verified_by) -->
+                            <!-- Step 3: Dikemas & Segera Dikirim (Processing) -->
                             <div class="relative flex items-start">
                                 <div 
-                                    class="absolute -left-8 p-1 rounded-full text-white"
-                                    :class="order.is_verified ? 'bg-green-500' : 'bg-gray-300 dark:bg-slate-700'"
+                                    class="absolute -left-8 p-1 rounded-full text-white text-xs w-6 h-6 flex items-center justify-center"
+                                    :class="order.is_processing ? 'bg-green-500' : 'bg-gray-300 dark:bg-slate-700'"
                                 >
-                                    <span x-text="order.is_verified ? '✓' : '•'"></span>
+                                    <span x-text="order.is_processing ? '✓' : '•'"></span>
                                 </div>
                                 <div>
-                                    <p class="font-medium" :class="order.is_verified ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'">Disetujui / ACC Admin</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="order.is_verified ? 'Pesanan telah diverifikasi oleh petugas' : 'Pesanan belum di-ACC/ditinjau oleh admin'"></p>
-                                </div>
-                            </div>
-
-                            <!-- Step 4: Dikemas & Siap Kirim -->
-                            <div class="relative flex items-start">
-                                <div 
-                                    class="absolute -left-8 p-1 rounded-full text-white"
-                                    :class="(order.is_paid && order.is_verified) ? 'bg-green-500' : 'bg-gray-300 dark:bg-slate-700'"
-                                >
-                                    <span x-text="(order.is_paid && order.is_verified) ? '✓' : '•'"></span>
-                                </div>
-                                <div>
-                                    <p class="font-medium" :class="(order.is_paid && order.is_verified) ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'">Dikemas & Siap Dikirim</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="(order.is_paid && order.is_verified) ? 'Barang sedang/sudah dikemas untuk pengiriman' : 'Menunggu verifikasi dan pembayaran'"></p>
+                                    <p class="font-medium" :class="order.is_processing ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'">Dikemas & Segera Dikirim</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400" x-text="order.is_processing ? 'Barang sedang dikemas dan segera diserahkan ke kurir' : 'Menunggu proses pengemasan oleh toko'"></p>
                                 </div>
                             </div>
 
@@ -207,21 +182,6 @@
                 order: null,
                 loading: false,
                 errorMessage: '',
-
-                // --- STATE KERANJANG & FORM PELANGGAN ---
-                isCheckoutFormOpen: false,
-                customerData: { name: '', phone: '', address: '' },
-                isNotRobot: false,
-                invoiceNumber: '',
-
-                cart: [],
-                includePPN: false,
-                isDelivery: false,
-                appFee: 2500,
-                deliveryFee: 50000,
-                isPaymentModalOpen: false,
-                paymentStep: 1, 
-                selectedPayment: null,
 
                 // --- FUNGSI LACAK PESANAN ---
                 async searchOrder() {
@@ -273,15 +233,6 @@
                     }
                 },
                 removeFromCart(id) { this.cart = this.cart.filter(item => item.id !== id); },
-                get totalItems() { return this.cart.reduce((total, item) => total + item.qty, 0); },
-                
-                get cartTotal() { return this.cart.reduce((total, item) => total + (item.price * item.qty), 0); },
-                get ppnAmount() { return this.includePPN ? (this.cartTotal * 0.11) : 0; },
-                get activeDeliveryFee() { return this.isDelivery ? this.deliveryFee : 0; },
-                get grandTotal() { 
-                    if(this.cart.length === 0) return 0;
-                    return this.cartTotal + this.ppnAmount + this.appFee + this.activeDeliveryFee; 
-                },
                 formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); }
             }));
         });
@@ -291,28 +242,16 @@
         const noCache = '?v=' + new Date().getTime();
 
         fetch('navbar/navbar.html' + noCache)
-            .then(response => {
-                if (!response.ok) throw new Error('Navbar gagal dimuat');
-                return response.text();
-            })
-            .then(data => { document.getElementById('navbar-placeholder').innerHTML = data; })
-            .catch(error => console.error('Gagal memuat navbar:', error));
+            .then(res => res.text())
+            .then(data => { document.getElementById('navbar-placeholder').innerHTML = data; });
 
         fetch('footer/footer.html' + noCache)
-            .then(response => {
-                if (!response.ok) throw new Error('Footer gagal dimuat');
-                return response.text();
-            })
-            .then(data => { document.getElementById('footer-placeholder').innerHTML = data; })
-            .catch(error => console.error('Gagal memuat footer:', error));
+            .then(res => res.text())
+            .then(data => { document.getElementById('footer-placeholder').innerHTML = data; });
 
         fetch('cart/cart.html' + noCache)
-            .then(response => {
-                if (!response.ok) throw new Error('Cart gagal dimuat');
-                return response.text();
-            })
-            .then(data => { document.getElementById('cart-placeholder').innerHTML = data; })
-            .catch(error => console.error('Gagal memuat cart:', error));
+            .then(res => res.text())
+            .then(data => { document.getElementById('cart-placeholder').innerHTML = data; });
     </script>
 </body>
 </html>
