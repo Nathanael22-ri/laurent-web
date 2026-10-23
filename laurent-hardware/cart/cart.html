@@ -115,9 +115,9 @@
                                 </div>
 
                                 <div class="space-y-2 md:space-y-3">
-                                    <button type="button" @click="openCheckoutForm()" :disabled="cart.length === 0" class="w-full flex items-center justify-center rounded-xl border border-transparent bg-zendit-500 px-4 py-3 md:py-3.5 text-sm md:text-base font-bold text-white shadow-lg hover:bg-zendit-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed gap-2">
+                                    <button type="button" @click="openCheckoutForm()" :disabled="cart.length === 0" class="w-full flex items-center justify-center rounded-xl border border-transparent bg-midtrans-500 px-4 py-3 md:py-3.5 text-sm md:text-base font-bold text-white shadow-lg hover:bg-midtrans-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed gap-2">
                                         <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                        Bayar Instan via Zendit
+                                        Bayar Instan via Midtrans
                                     </button>
                                     <button type="button" @click.prevent.stop="checkoutWA()" :disabled="cart.length === 0" class="w-full flex items-center justify-center rounded-xl border-2 border-brand-600 bg-transparent px-4 py-2.5 md:py-3 text-sm md:text-base font-bold text-brand-600 dark:text-brand-400 dark:border-brand-500 shadow-sm hover:bg-brand-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed gap-2">
                                         <svg class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.161.453-.892.853-1.288.932-.303.06-.723.137-2.228-.485-1.802-.74-2.947-2.58-3.037-2.703-.09-.124-.725-.966-.725-1.843s.457-1.31.621-1.484c.135-.143.344-.194.524-.194.062 0 .118-.005.168-.005.158 0 .324-.015.485.378.165.405.539 1.32.586 1.415.048.095.079.206.015.334-.061.127-.095.206-.188.312-.093.107-.197.234-.278.326-.089.102-.184.214-.078.397.105.182.473.782 1.019 1.268.703.626 1.293.82 1.479.914.184.095.293.079.403-.047.112-.127.481-.559.613-.751.13-.191.261-.161.428-.1.168.06 1.059.5 1.242.592.184.094.306.142.352.223.045.08.045.467-.116.92zM12.015 2c5.514 0 10 4.486 10 10s-4.486 10-10 10c-1.856 0-3.593-.509-5.068-1.385l-4.947 1.303 1.325-4.819c-.96-1.503-1.51-3.296-1.51-5.204 0-5.514 4.486-10 10-10z"/></svg>
@@ -192,7 +192,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 3. ZENDIT DUMMY MODAL (POP-UP PEMBAYARAN)  -->
+    <!-- 3. MIDTRANS DUMMY MODAL (POP-UP PEMBAYARAN)-->
     <!-- ========================================== -->
     <div class="relative" style="z-index: 60;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         
@@ -205,7 +205,7 @@
         <div x-cloak x-show="isPaymentModalOpen" class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                 
-                <!-- Panel Utama Modal Zendit -->
+                <!-- Panel Utama Modal Midtrans -->
                 <div x-show="isPaymentModalOpen" 
                      x-transition:enter="ease-out duration-300" 
                      x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
@@ -216,14 +216,15 @@
                      class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-slate-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100 dark:border-slate-700">
                     
                     <div x-cloak x-show="paymentStep === 1">
-                        <div class="bg-zendit-500 px-4 md:px-6 py-4 md:py-5 flex justify-between items-center border-b border-zendit-600">
+                        <div class="bg-midtrans-500 px-4 md:px-6 py-4 md:py-5 flex justify-between items-center border-b border-midtrans-600">
                             <div class="flex items-center gap-3">
-                                <div class="bg-white p-1 md:p-1.5 rounded text-zendit-600 font-extrabold text-xs">Z</div>
-                                <span class="text-white font-bold text-lg md:text-xl tracking-wide">Zendit Checkout</span>
+                                <div class="bg-white p-1 md:p-1.5 rounded text-midtrans-600 font-extrabold text-xs">M</div>
+                                <span class="text-white font-bold text-lg md:text-xl tracking-wide">Midtrans Checkout</span>
                             </div>
-                            <button type="button" @click="isPaymentModalOpen = false" class="text-white/70 hover:text-white transition transform hover:rotate-90 focus:outline-none">
-                                <svg class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
+                            <button type="button" @click="openCheckoutForm()" :disabled="cart.length === 0" class="w-full flex items-center justify-center rounded-xl border border-transparent bg-blue-600 px-4 py-3 md:py-3.5 text-sm md:text-base font-bold text-white shadow-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed gap-2">
+    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+    Bayar Instan via Midtrans
+</button>
                         </div>
                         
                         <div class="px-4 md:px-6 py-5 md:py-6">
@@ -239,25 +240,25 @@
                             <p class="font-bold text-gray-900 dark:text-white mb-3 md:mb-4 text-sm md:text-base">Pilih Metode Pembayaran</p>
                             
                             <div class="space-y-2 md:space-y-3">
-                                <label class="flex items-center p-3 md:p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-zendit-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'bca'}">
-                                    <input type="radio" x-model="selectedPayment" value="bca" class="h-4 w-4 md:h-5 md:w-5 text-zendit-500 focus:ring-zendit-500 border-gray-300">
+                                <label class="flex items-center p-3 md:p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-midtrans-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'bca'}">
+                                    <input type="radio" x-model="selectedPayment" value="bca" class="h-4 w-4 md:h-5 md:w-5 text-midtrans-500 focus:ring-midtrans-500 border-gray-300">
                                     <span class="ml-3 md:ml-4 font-semibold text-sm md:text-base text-gray-900 dark:text-white">BCA Virtual Account</span>
                                 </label>
                                 
-                                <label class="flex items-center p-3 md:p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-zendit-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'qris'}">
-                                    <input type="radio" x-model="selectedPayment" value="qris" class="h-4 w-4 md:h-5 md:w-5 text-zendit-500 focus:ring-zendit-500 border-gray-300">
+                                <label class="flex items-center p-3 md:p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-midtrans-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'qris'}">
+                                    <input type="radio" x-model="selectedPayment" value="qris" class="h-4 w-4 md:h-5 md:w-5 text-midtrans-500 focus:ring-midtrans-500 border-gray-300">
                                     <span class="ml-3 md:ml-4 font-semibold text-sm md:text-base text-gray-900 dark:text-white">QRIS (GoPay, OVO, Dana)</span>
                                 </label>
                             </div>
 
-                            <button type="button" @click="processPayment()" :disabled="!selectedPayment" class="w-full mt-6 md:mt-8 bg-zendit-500 text-white rounded-xl py-3 md:py-4 font-bold text-base md:text-lg hover:bg-zendit-600 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
+                            <button type="button" @click="processPayment()" :disabled="!selectedPayment" class="w-full mt-6 md:mt-8 bg-midtrans-500 text-white rounded-xl py-3 md:py-4 font-bold text-base md:text-lg hover:bg-midtrans-600 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
                                 Konfirmasi Pembayaran
                             </button>
                         </div>
                     </div>
 
                     <div x-cloak x-show="paymentStep === 2" class="px-6 py-16 md:py-20 text-center">
-                        <div class="flex justify-center mb-6 md:mb-8"><div class="loader border-l-zendit-500"></div></div>
+                        <div class="flex justify-center mb-6 md:mb-8"><div class="loader border-l-midtrans-500"></div></div>
                         <h3 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">Memproses Transaksi...</h3>
                         <p class="text-sm md:text-base text-gray-500 dark:text-gray-400">Sistem sedang memverifikasi keamanan (Secure Payment).</p>
                     </div>
@@ -279,7 +280,7 @@
                         <div class="space-y-3">
                             <!-- Tombol Lacak Pesanan & Salin -->
                             <button type="button" @click="trackOrderAndCopy()" class="w-full bg-brand-600 text-white rounded-xl py-3.5 font-bold text-sm md:text-base hover:bg-brand-700 transition shadow-lg flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 002 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 012-2h2a2 2 0 012 2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 002 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
                                 <span x-text="copiedNotice ? 'Nomor Invoice Disalin!' : 'Salin Invoice & Lacak Pesanan'"></span>
                             </button>
 

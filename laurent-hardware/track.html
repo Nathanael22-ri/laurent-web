@@ -32,6 +32,9 @@
                         brand: {
                             50: '#f3f6fc', 100: '#e6edf8', 400: '#6484c4',
                             500: '#4a6eb3', 600: '#344f96', 700: '#2a407a', 900: '#1c294d',
+                        },
+                        zendit: {
+                            500: '#10b981', 600: '#059669'
                         }
                     }
                 }
@@ -175,18 +178,165 @@
             Alpine.data('trackAndCartStore', () => ({
                 isDark: document.documentElement.classList.contains('dark'),
                 isCartOpen: false,
+                isCheckoutFormOpen: false,
+                isPaymentModalOpen: false,
                 isMobileMenuOpen: false,
 
-                // --- STATE LACAK PESANAN ---
+                // SINKRONISASI PEMBACAAN CART DARI LOCALSTORAGE ('cart')
+                cart: JSON.parse(localStorage.getItem('cart')) || [],
+                
+                // STATE MODAL CHECKOUT & DUMMY ZENDIT
+                includePPN: false,
+                isDelivery: false,
+                appFee: 2500,
+                deliveryFee: 15000,
+                customerData: { name: '', phone: '', address: '' },
+                isNotRobot: false,
+                selectedPayment: '',
+                paymentStep: 1,
+                invoiceNumber: '',
+                copiedNotice: false,
+
+                // STATE LACAK PESANAN
                 invoiceQuery: '',
                 order: null,
                 loading: false,
                 errorMessage: '',
 
-                // --- FUNGSI LACAK PESANAN ---
+                init() {
+                    // Watcher tema
+                    this.$watch('isDark', val => { localStorage.setItem('theme', val ? 'dark' : 'light'); });
+                    
+                    // WATCHER SINKRONISASI OTOMATIS KERANJANG KE LOCALSTORAGE
+                    this.$watch('cart', val => {
+                        localStorage.setItem('cart', JSON.stringify(val));
+                    }, { deep: true });
+
+                    // Pengecekan URL parameter invoice untuk auto-track
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const inv = urlParams.get('invoice');
+                    if (inv) {
+                        this.invoiceQuery = inv;
+                        this.searchOrder();
+                    }
+                },
+
+                // COMPUTED PROPERTIES UNTUK CART
+                get totalItems() {
+                    return this.cart.reduce((sum, item) => sum + item.qty, 0);
+                },
+                get cartTotal() {
+                    return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                },
+                get ppnAmount() {
+                    return this.includePPN ? Math.round(this.cartTotal * 0.11) : 0;
+                },
+                get grandTotal() {
+                    let total = this.cartTotal + this.appFee;
+                    if (this.includePPN) total += this.ppnAmount;
+                    if (this.isDelivery) total += this.deliveryFee;
+                    return total;
+                },
+
+                // METODE AKSI KERANJANG & CHECKOUT
+                addToCart(product) {
+                    const itemIndex = this.cart.findIndex(item => item.id === product.id);
+                    if (itemIndex > -1) {
+                        this.cart[itemIndex].qty += 1;
+                    } else {
+                        this.cart.push({ ...product, qty: 1 });
+                    }
+                    this.isCartOpen = true; 
+                },
+                updateQty(id, change) {
+                    const item = this.cart.find(i => i.id === id);
+                    if (item) {
+                        item.qty += change;
+                        if (item.qty <= 0) this.removeFromCart(id);
+                    }
+                },
+                removeFromCart(id) { 
+                    this.cart = this.cart.filter(item => item.id !== id); 
+                },
+                isValidPhone(phone) {
+                    if (!phone) return false;
+                    const cleaned = phone.replace(/\D/g, '');
+                    return cleaned.length >= 10 && cleaned.length <= 15;
+                },
+                openCheckoutForm() {
+                    if (this.cart.length === 0) return;
+                    this.isCartOpen = false;
+                    this.isCheckoutFormOpen = true;
+                },
+                proceedToPayment() {
+                    if (!this.customerData.name || !this.customerData.phone || !this.customerData.address || !this.isNotRobot) return;
+                    this.isCheckoutFormOpen = false;
+                    this.paymentStep = 1;
+                    this.selectedPayment = '';
+                    this.isPaymentModalOpen = true;
+                },
+                processPayment() {
+                    if (!this.selectedPayment) return;
+                    this.paymentStep = 2;
+
+                    const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+                    const randomNum = Math.floor(1000 + Math.random() * 9000);
+                    this.invoiceNumber = `LAU-${dateStr}-${randomNum}`;
+
+                    const orderPayload = {
+                        invoice_number: this.invoiceNumber,
+                        customer: this.customerData,
+                        items: this.cart,
+                        grand_total: this.grandTotal,
+                        payment_method: this.selectedPayment
+                    };
+
+                    fetch('api/checkout.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(orderPayload)
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        setTimeout(() => {
+                            this.paymentStep = 3;
+                            this.cart = []; // Reset keranjang setelah berhasil bayar
+                        }, 1500);
+                    })
+                    .catch(() => {
+                        setTimeout(() => {
+                            this.paymentStep = 3;
+                            this.cart = [];
+                        }, 1500);
+                    });
+                },
+                checkoutWA() {
+                    if (this.cart.length === 0) return;
+                    let message = `Halo Laurent Hardware, saya ingin memesan:\n\n`;
+                    this.cart.forEach((item, index) => {
+                        message += `${index + 1}. ${item.name} (${item.qty}x) - ${this.formatRupiah(item.price * item.qty)}\n`;
+                    });
+                    message += `\n*Total Akhir: ${this.formatRupiah(this.grandTotal)}*`;
+                    window.open(`https://wa.me/62897778986?text=${encodeURIComponent(message)}`, '_blank');
+                },
+                trackOrderAndCopy() {
+                    navigator.clipboard.writeText(this.invoiceNumber);
+                    this.copiedNotice = true;
+                    setTimeout(() => {
+                        this.copiedNotice = false;
+                        this.invoiceQuery = this.invoiceNumber;
+                        this.isPaymentModalOpen = false;
+                        this.searchOrder();
+                    }, 1000);
+                },
+                finishPayment() {
+                    this.isPaymentModalOpen = false;
+                    window.location.reload();
+                },
+
+                // METODE LACAK PESANAN
                 async searchOrder() {
                     if (!this.invoiceQuery.trim()) return;
-                    
                     this.loading = true;
                     this.errorMessage = '';
                     this.order = null;
@@ -207,7 +357,7 @@
                     }
                 },
 
-                // --- FUNGSI TEMA & KERANJANG ---
+                // HELPER TEMA & FORMAT
                 toggleTheme() {
                     this.isDark = !this.isDark;
                     if (this.isDark) {
@@ -218,22 +368,10 @@
                         document.documentElement.classList.remove('dark');  
                     }
                 },
-
-                addToCart(product) {
-                    const itemIndex = this.cart.findIndex(item => item.id === product.id);
-                    if (itemIndex > -1) this.cart[itemIndex].qty += 1;
-                    else this.cart.push({ ...product, qty: 1 });
-                    this.isCartOpen = true; 
-                },
-                updateQty(id, change) {
-                    const item = this.cart.find(i => i.id === id);
-                    if (item) {
-                        item.qty += change;
-                        if (item.qty <= 0) this.removeFromCart(id);
-                    }
-                },
-                removeFromCart(id) { this.cart = this.cart.filter(item => item.id !== id); },
-                formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); }
+                formatRupiah(number) { 
+                    if (!number) return 'Rp 0';
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); 
+                }
             }));
         });
     </script>
