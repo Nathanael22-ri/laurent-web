@@ -31,7 +31,7 @@
                     fontFamily: { sans: ['Poppins', 'sans-serif'], },
                     colors: {
                         brand: { 50: '#f3f6fc', 100: '#e6edf8', 400: '#6484c4', 500: '#4a6eb3', 600: '#344f96', 700: '#2a407a', 900: '#1c294d', },
-                        zendit: { 500: '#002060', 600: '#001a4d' }
+                        midtrans: { 500: '#002060', 600: '#001a4d' }
                     }
                 }
             }
@@ -242,11 +242,11 @@
     </div>
 </div>
 
-    <!-- CART DRAWER & ZENDIT MODAL -->
+    <!-- CART DRAWER & midtrans MODAL -->
     <div id="cart-placeholder"></div>
 
 
-    <!-- ZENDIT DUMMY MODAL -->
+    <!-- midtrans DUMMY MODAL -->
     <div x-cloak x-show="isPaymentModalOpen" class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
             <div x-show="isPaymentModalOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-md transition-opacity" @click="if(paymentStep === 1) isPaymentModalOpen = false"></div>
@@ -256,10 +256,10 @@
                  x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
                  class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full border border-gray-100 dark:border-slate-700">
                 <div x-show="paymentStep === 1">
-                    <div class="bg-zendit-500 px-6 py-5 flex justify-between items-center border-b border-zendit-600">
+                    <div class="bg-midtrans-500 px-6 py-5 flex justify-between items-center border-b border-midtrans-600">
                         <div class="flex items-center gap-3">
-                            <div class="bg-white p-1.5 rounded text-zendit-600 font-extrabold text-xs">Z</div>
-                            <span class="text-white font-bold text-xl tracking-wide">Zendit Checkout</span>
+                            <div class="bg-white p-1.5 rounded text-midtrans-600 font-extrabold text-xs">Z</div>
+                            <span class="text-white font-bold text-xl tracking-wide">midtrans Checkout</span>
                         </div>
                         <button @click="isPaymentModalOpen = false" class="text-white/70 hover:text-white transition transform hover:rotate-90">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -272,38 +272,49 @@
                         </div>
                         <p class="font-bold text-gray-900 dark:text-white mb-4">Pilih Metode Pembayaran</p>
                         <div class="space-y-3">
-                            <label class="flex items-center p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-zendit-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'bca'}">
-                                <input type="radio" x-model="selectedPayment" value="bca" class="h-5 w-5 text-zendit-500 focus:ring-zendit-500 border-gray-300">
+                            <label class="flex items-center p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-midtrans-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'bca'}">
+                                <input type="radio" x-model="selectedPayment" value="bca" class="h-5 w-5 text-midtrans-500 focus:ring-midtrans-500 border-gray-300">
                                 <span class="ml-4 font-semibold text-gray-900 dark:text-white">BCA Virtual Account</span>
                             </label>
-                            <label class="flex items-center p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-zendit-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'qris'}">
-                                <input type="radio" x-model="selectedPayment" value="qris" class="h-5 w-5 text-zendit-500 focus:ring-zendit-500 border-gray-300">
+                            <label class="flex items-center p-4 border-2 border-gray-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-brand-50 dark:hover:bg-slate-700 transition" :class="{'border-midtrans-500 bg-brand-50/50 dark:bg-slate-700': selectedPayment === 'qris'}">
+                                <input type="radio" x-model="selectedPayment" value="qris" class="h-5 w-5 text-midtrans-500 focus:ring-midtrans-500 border-gray-300">
                                 <span class="ml-4 font-semibold text-gray-900 dark:text-white">QRIS (GoPay, OVO, Dana)</span>
                             </label>
                         </div>
-                        <button @click="processPayment()" :disabled="!selectedPayment" class="w-full mt-8 bg-zendit-500 text-white rounded-xl py-4 font-bold text-lg hover:bg-zendit-600 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
+                        <button @click="processPayment()" :disabled="!selectedPayment" class="w-full mt-8 bg-midtrans-500 text-white rounded-xl py-4 font-bold text-lg hover:bg-midtrans-600 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
                             Konfirmasi Pembayaran
                         </button>
                     </div>
                 </div>
                 <div x-show="paymentStep === 2" class="px-6 py-20 text-center">
-                    <div class="flex justify-center mb-8"><div class="loader border-l-zendit-500"></div></div>
+                    <div class="flex justify-center mb-8"><div class="loader border-l-midtrans-500"></div></div>
                     <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Memproses Transaksi...</h3>
                     <p class="text-gray-500 dark:text-gray-400">Sistem sedang memverifikasi keamanan (Secure Payment).</p>
                 </div>
-                <div x-show="paymentStep === 3" class="px-6 py-16 text-center">
+                <div x-show="paymentStep === 3" class="px-6 py-14 text-center">
     <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/50 mb-6">
         <svg class="h-10 w-10 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
     </div>
     <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Pembayaran Berhasil!</h3>
-    <p class="text-gray-600 dark:text-gray-400 mb-2">Terima kasih atas pesanan Anda.</p>
-    <!-- Ubah teks statis di bawah ini menggunakan x-text="invoiceNumber" -->
-    <p class="text-brand-600 dark:text-brand-400 font-bold mb-8">Nomor PO: <span x-text="invoiceNumber"></span></p>
-    <button @click="finishPayment()" class="w-full bg-brand-600 text-white rounded-xl py-4 font-bold hover:bg-brand-700 transition shadow-lg">
-        Selesai & Lacak Pesanan
-    </button>
+    <p class="text-gray-600 dark:text-gray-400 mb-4">Terima kasih atas pesanan Anda.</p>
+    
+    <!-- Kotak Nomor Invoice -->
+    <div class="inline-flex items-center gap-2 bg-gray-100 dark:bg-slate-900 px-4 py-2 rounded-xl mb-6 border border-gray-200 dark:border-slate-700">
+        <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Nomor PO:</span>
+        <span class="text-base font-extrabold text-brand-600 dark:text-brand-400 select-all" x-text="invoiceNumber"></span>
+    </div>
+
+    <!-- Tombol Aksi Lengkap (Salin/Lacak & Kembali) -->
+    <div class="space-y-3">
+        <button type="button" @click="trackOrderAndCopy()" class="w-full bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 002 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+            <span x-text="copiedNotice ? 'Nomor Invoice Disalin!' : 'Salin Invoice & Lacak Pesanan'"></span>
+        </button>
+        <button type="button" @click="finishPayment()" class="w-full bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 rounded-xl py-3 font-semibold hover:bg-gray-200 dark:hover:bg-slate-600 transition">
+            Kembali
+        </button>
+    </div>
 </div>
-            </div>
         </div>
     </div>
 
@@ -422,6 +433,42 @@ get activeProductImages() {
 //     return [img, img, img]; 
 // },
 
+// 3. Proses Pembayaran / Mengirim Data ke Backend PHP
+                processPayment() {
+    if (!this.selectedPayment) return;
+    this.paymentStep = 2; 
+    
+    const payload = {
+        customer: this.customerData,
+        cart: this.cart,
+        paymentMethod: this.selectedPayment,
+        grandTotal: this.grandTotal
+    };
+
+    fetch('../api/checkout.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            this.invoiceNumber = data.invoice_number; 
+            this.paymentStep = 3; 
+        } else {
+            alert('Gagal memproses pesanan: ' + data.message);
+            this.isPaymentModalOpen = false;
+            this.paymentStep = 1;
+        }
+    })
+    .catch(err => {
+        console.error('Error Checkout:', err);
+        alert('Terjadi kesalahan jaringan atau server.');
+        this.isPaymentModalOpen = false;
+        this.paymentStep = 1;
+    });
+},
+
 nextImage() {
     const imgs = this.activeProductImages;
     this.activeImageIndex = (this.activeImageIndex + 1) % imgs.length;
@@ -515,7 +562,7 @@ prevImage() {
                     setTimeout(() => { this.isCheckoutFormOpen = true; }, 300); 
                 },
 
-                // 2. Tombol di form memanggil ini untuk membuka Zendit
+                // 2. Tombol di form memanggil ini untuk membuka midtrans
                 proceedToPayment() {
                     // Bersihkan spasi kosong di awal/akhir input
                     this.customerData.name = this.customerData.name.trim();
