@@ -1,13 +1,27 @@
 <?php
 header('Content-Type: application/json');
-require_once '../db.php'; // Pastikan path ini mengarah ke file koneksi Anda
+require_once '../db.php';
 
-// Menangkap data JSON yang dikirim dari Frontend (Alpine.js)
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Validasi sederhana
 if (!$data || empty($data['cart'])) {
     echo json_encode(['status' => 'error', 'message' => 'Data pesanan kosong atau tidak valid.']);
+    exit;
+}
+
+// === TAMBAHKAN VALIDASI RECAPTCHA DI SINI ===
+$recaptchaToken = $data['captchaToken'] ?? '';
+$secretKey = '6Lf4NP4tAAAAAKcvrkn1ib1Y_Nc0PhyCcF3ICkcR'; // Ganti dengan Secret Key Google reCAPTCHA Anda
+
+$verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+$response = file_get_contents($verifyUrl . '?secret=' . $secretKey . '&response=' . $recaptchaToken);
+$responseData = json_decode($response, true);
+
+if (!$responseData || !$responseData['success']) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Verifikasi reCAPTCHA gagal atau kadaluwarsa. Silakan centang ulang.'
+    ]);
     exit;
 }
 

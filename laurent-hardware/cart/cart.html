@@ -1,6 +1,9 @@
 <!-- BUNGKUSAN UTAMA MODUL CART & CHECKOUT -->
 <div id="cart-module-wrapper">
 
+    <!-- reCaptcha -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
     <!-- ========================================== -->
     <!-- 1. CART DRAWER (KERANJANG BELANJA KANAN)   -->
     <!-- ========================================== -->
@@ -166,7 +169,7 @@
                         </div>
 
                         <!-- Custom reCAPTCHA -->
-                        <div class="mt-4 p-3 md:p-4 border border-gray-200 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-900/50 flex items-center justify-between">
+                        <!-- <div class="mt-4 p-3 md:p-4 border border-gray-200 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-900/50 flex items-center justify-between">
                             <label class="flex items-center cursor-pointer group">
                                 <div class="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 mr-3 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded group-hover:border-brand-500 transition-colors shadow-sm">
                                     <input type="checkbox" x-model="isNotRobot" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
@@ -178,13 +181,19 @@
                                 <svg class="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                                 <span class="text-[8px] text-gray-500 mt-0.5 tracking-wider">reCAPTCHA</span>
                             </div>
-                        </div>
+                        </div> -->
+
+                        <!-- Google reCAPTCHA v2 Widget dengan Container ID -->
+<!-- Google reCAPTCHA v2 Container (Tanpa class g-recaptcha) -->
+<div class="mt-4 flex justify-center">
+    <div id="recaptcha-container"></div>
+</div>
 
                         <button @click="proceedToPayment()" 
-                                :disabled="!customerData.name || !customerData.name.trim() || !customerData.phone || !customerData.phone.trim() || !customerData.address || !customerData.address.trim() || !isNotRobot || !isValidPhone(customerData.phone)" 
-                                class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
-                            Lanjut ke Pembayaran
-                        </button>
+        :disabled="!customerData.name || !customerData.name.trim() || !customerData.phone || !customerData.phone.trim() || !customerData.address || !customerData.address.trim() || !isValidPhone(customerData.phone) || !$store.recaptcha.verified" 
+        class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
+    Lanjut ke Pembayaran
+</button>
                     </div>
                 </div>
             </div>

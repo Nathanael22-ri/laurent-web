@@ -18,6 +18,9 @@
             document.documentElement.classList.remove('dark');
         }
     </script>
+
+    <!-- reCaptcha -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     
     <!-- AOS Animation CSS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -317,7 +320,7 @@
                     </div>
 
                     <!-- Custom reCAPTCHA Simulation -->
-                    <div class="mt-4 p-3 md:p-4 border border-gray-200 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-900/50 flex items-center justify-between">
+                    <!-- <div class="mt-4 p-3 md:p-4 border border-gray-200 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-900/50 flex items-center justify-between">
                         <label class="flex items-center cursor-pointer group">
                             <div class="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 mr-3 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded group-hover:border-brand-500 transition-colors shadow-sm">
                                 <input type="checkbox" x-model="isNotRobot" class="opacity-0 absolute inset-0 cursor-pointer z-10 w-full h-full">
@@ -325,19 +328,28 @@
                             </div>
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300 select-none">Saya bukan robot</span>
                         </label>
-                        <div class="flex flex-col items-center opacity-80">
+                        <div class="flex flex-col items-center opacity-80"> -->
                             <!-- Recaptcha Icon -->
-                            <svg class="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            <!-- <svg class="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                             <span class="text-[8px] text-gray-500 mt-0.5 tracking-wider">reCAPTCHA</span>
                         </div>
-                    </div>
+                    </div> -->
 
-                    <!-- Submit Button dengan validasi data kosong, recaptcha, dan format nomor telepon -->
-                    <button @click="proceedToPayment()" 
-                            :disabled="!customerData.name || !customerData.name.trim() || !customerData.phone || !customerData.phone.trim() || !customerData.address || !customerData.address.trim() || !isNotRobot || !isValidPhone(customerData.phone)" 
-                            class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
-                        Lanjut ke Pembayaran
-                    </button>
+                    <!-- Google reCAPTCHA v2 Widget -->
+<!-- Google reCAPTCHA v2 Widget dengan Callback -->
+<div class="mt-4 flex justify-center">
+    <div class="g-recaptcha" 
+         data-sitekey="6Lf4NP4tAAAAACS15cGdmxSxZpnnNzybUssJB21Y"
+         data-callback="onRecaptchaSuccess"
+         data-expired-callback="onRecaptchaExpired"></div>
+</div>
+
+                    <!-- Submit Button dengan pengecekan dari Alpine Store -->
+<button @click="proceedToPayment()" 
+        :disabled="!customerData.name || !customerData.name.trim() || !customerData.phone || !customerData.phone.trim() || !customerData.address || !customerData.address.trim() || !isValidPhone(customerData.phone) || !$store.recaptcha.verified" 
+        class="w-full mt-6 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-700 transition shadow-lg transform active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed">
+    Lanjut ke Pembayaran
+</button>
                 </div>
             </div>
         </div>
@@ -351,15 +363,29 @@
         AOS.init({ once: true, offset: 50, duration: 800, easing: 'ease-out-cubic' });
 
         document.addEventListener('alpine:init', () => {
+            // 1. Registrasi store global Alpine untuk reCAPTCHA
+    Alpine.store('recaptcha', {
+        verified: false
+    });
+
+    // 2. Buat fungsi callback global agar bisa dipanggil langsung oleh Google reCAPTCHA
+    window.onRecaptchaSuccess = function() {
+        Alpine.store('recaptcha').verified = true;
+    };
+    window.onRecaptchaExpired = function() {
+        Alpine.store('recaptcha').verified = false;
+    };
+    
             Alpine.data('hardwareStore', () => ({
                 isDark: document.documentElement.classList.contains('dark'),
                 isCartOpen: false,
                 isMobileMenuOpen: false,
+                // isRecaptchaVerified: false, // <-- Tambahkan di sini
                 
                 // --- DATA FORM PELANGGAN ---
                 isCheckoutFormOpen: false,
                 customerData: { name: '', phone: '', address: '' },
-                isNotRobot: false,
+                // isNotRobot: false,
                 invoiceNumber: '',
 
                 // --- STATE KERANJANG & PEMBAYARAN ---
@@ -367,7 +393,7 @@
                 includePPN: false,
                 isDelivery: false,
                 appFee: 2500,
-                deliveryFee: 50000,
+                deliveryFee: 50000  ,
                 isPaymentModalOpen: false,
                 paymentStep: 1, 
                 selectedPayment: null,
@@ -387,6 +413,13 @@
     }, { deep: true });
 
     this.fetchProducts(); 
+},
+
+onRecaptchaSuccess() {
+    this.isRecaptchaVerified = true;
+},
+onRecaptchaExpired() {
+    this.isRecaptchaVerified = false;
 },
 
 
@@ -487,14 +520,18 @@ proceedToPayment() {
     }
 
     if (!this.isValidPhone(this.customerData.phone)) {
-        alert('Format nomor WhatsApp / Telepon tidak valid. Gunakan nomor yang benar (Contoh: 08123456789 atau +628123456789).');
+        alert('Format nomor WhatsApp / Telepon tidak valid.');
         return;
     }
 
-    if (!this.isNotRobot) {
-        alert('Mohon verifikasi centang "Saya bukan robot".');
+    // --- VALIDASI GOOGLE RECAPTCHA ---
+    const captchaResponse = grecaptcha.getResponse();
+    if (captchaResponse.length === 0) {
+        alert('Mohon verifikasi bahwa Anda bukan robot melalui Google reCAPTCHA.');
         return;
     }
+    this.captchaToken = captchaResponse;
+    // ---------------------------------
 
     this.isCheckoutFormOpen = false;
     this.paymentStep = 1; 
@@ -503,37 +540,40 @@ proceedToPayment() {
 },
 
                 processPayment() { 
-                    this.paymentStep = 2; 
-                    
-                    const payload = {
-                        customer: this.customerData,
-                        cart: this.cart,
-                        paymentMethod: this.selectedPayment,
-                        grandTotal: this.grandTotal
-                    };
+    if (!this.selectedPayment) return;
+    this.paymentStep = 2; 
+    
+    const payload = {
+        customer: this.customerData,
+        cart: this.cart,
+        paymentMethod: this.selectedPayment,
+        grandTotal: this.grandTotal,
+        captchaToken: this.captchaToken // <--- TAMBAHKAN BARIS INI
+    };
 
-                    // Path sejajar langsung ke api/checkout.php
-                    fetch('api/checkout.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            this.invoiceNumber = data.invoice_number;
-                            this.paymentStep = 3; 
-                        } else {
-                            alert('Gagal memproses pesanan: ' + data.message);
-                            this.isPaymentModalOpen = false;
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Error Checkout:', err);
-                        alert('Terjadi kesalahan jaringan.');
-                        this.isPaymentModalOpen = false;
-                    });
-                },
+    fetch('api/checkout.php', { // (Gunakan '../api/checkout.php' jika di folder products)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            this.invoiceNumber = data.invoice_number;
+            this.paymentStep = 3; 
+        } else {
+            alert('Gagal memproses pesanan: ' + data.message);
+            this.isPaymentModalOpen = false;
+            this.paymentStep = 1;
+        }
+    })
+    .catch(err => {
+        console.error('Error Checkout:', err);
+        alert('Terjadi kesalahan jaringan.');
+        this.isPaymentModalOpen = false;
+        this.paymentStep = 1;
+    });
+},
 
                 checkoutWA() {
                     let textMsg = `*Halo Laurent Hardware*\nSaya ingin memproses pesanan:\n\n`;
@@ -550,14 +590,21 @@ proceedToPayment() {
                     this.finishPayment();
                 },
 
+                // Reset semua setelah selesai
                 finishPayment() { 
-                    this.isPaymentModalOpen = false; 
-                    this.cart = []; 
-                    this.includePPN = false; 
-                    this.isDelivery = false; 
-                    this.customerData = { name: '', phone: '', address: '' };
-                    this.isNotRobot = false;
-                }
+            this.isPaymentModalOpen = false; 
+            this.cart = []; 
+            this.includePPN = false; 
+            this.isDelivery = false; 
+            this.customerData = { name: '', phone: '', address: '' };
+            
+            // Reset status reCAPTCHA di store
+            Alpine.store('recaptcha').verified = false;
+            
+            if (typeof grecaptcha !== 'undefined') {
+                grecaptcha.reset();
+            }
+        }
             }));
         });
     </script>
